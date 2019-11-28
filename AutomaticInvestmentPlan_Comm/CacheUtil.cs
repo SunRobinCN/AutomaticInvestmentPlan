@@ -10,7 +10,8 @@ namespace AutomaticInvestmentPlan_Comm
 
         public static double SpecifyEstimationJumpPoint;
 
-        public static string name;
+        public static string Name;
 
+        public static string BuyAmount;
     }
 }

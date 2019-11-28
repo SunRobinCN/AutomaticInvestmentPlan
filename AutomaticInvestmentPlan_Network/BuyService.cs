@@ -34,6 +34,7 @@ namespace AutomaticInvestmentPlan_Network
                 Location = new Point(0, 0),
                 Dock = DockStyle.Fill,
             };
+
             Form f = new MountForm();
             f.Text = "BuyForm";
             f.Controls.Add(_browser);
@@ -57,13 +58,24 @@ namespace AutomaticInvestmentPlan_Network
 
         public string ExecuteBuy(int amount)
         {
-            Thread.Sleep(1000*15);
             FileLog.Info("start ExecuteBuy method", LogType.Info);
             Debug.WriteLine("start ExecuteBuy method");
             this._amount = amount;
             DateTime beginTime = DateTime.Now;
             FileLog.Info("trying to load login page", LogType.Info);
             Debug.WriteLine("trying to load login page");
+            bool signal = true;
+            while (signal)
+            {
+                if (this._browser.IsBrowserInitialized == false)
+                {
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    signal = false;
+                }
+            }
             _browser.Load(_loginUrl);
             FileLog.Info("login page is loading", LogType.Info);
             Debug.WriteLine("login page is loading");
@@ -115,87 +127,56 @@ namespace AutomaticInvestmentPlan_Network
                     {
                         FileLog.Info("purchage page loaded", LogType.Info);
                         Debug.WriteLine("purchage page loaded");
-                        FileLog.Info("start to execute tabs", LogType.Info);
-                        Debug.WriteLine("start to execute tabs");
-                        Thread.Sleep(1000 * 8);
-                        FileLog.Info("executing tabs", LogType.Info);
-                        Debug.WriteLine("executing tabs");
-                        this._browser.Focus();
-                        SendKeys.SendWait("{TAB}");
-                        FileLog.Info("one tab ok", LogType.Info);
-                        Debug.WriteLine("one tab ok");
-                        Thread.Sleep(1000 * 1);
-                        this._browser.Focus();
-                        SendKeys.SendWait("{TAB}");
-                        FileLog.Info("two tab ok", LogType.Info);
-                        Debug.WriteLine("two tab ok");
-                        Thread.Sleep(1000 * 1);
-                        this._browser.Focus();
-                        SendKeys.SendWait("{TAB}");
-                        FileLog.Info("three tab ok", LogType.Info);
-                        Debug.WriteLine("three tab ok");
-                        Thread.Sleep(1000 * 1);
-                        this._browser.Focus();
-                        SendKeys.SendWait("{TAB}");
-                        FileLog.Info("four tab ok", LogType.Info);
-                        Debug.WriteLine("four tab ok");
-                        Thread.Sleep(1000 * 5);
-                        FileLog.Info("start to input amount", LogType.Info);
-                        Debug.WriteLine("start to input amount");
 
-                        List<string> amountStrArray = GetStringArray(this._amount.ToString());
-                        foreach (string s in amountStrArray)
-                        {
-                            FileLog.Info("tryint to input key " + s, LogType.Info);
-                            Debug.WriteLine("tryint to input key " + s);
-                            this._browser.Focus();
-                            SendKeys.SendWait(s);
-                            Thread.Sleep(1000 * 2);
-                        }
+                        Thread.Sleep(1000 * 5);
+                        string jscript1 = "$(\'input[Name=\"amount\"]\').val(11);";
+                        Task t1 = browser.EvaluateScriptAsync(jscript1);
+                        Task.WaitAll(new Task[] { t1 });
                         FileLog.Info("amount is already input", LogType.Info);
                         Debug.WriteLine("amount is already input");
-                        Thread.Sleep(1000 * 5);
+                        Thread.Sleep(1000 * 3);
+
+                        string jscript2 = "$(\'button[class=\"dj-button\"]\').removeAttr(\"disabled\");";
+                        Task t2 = browser.EvaluateScriptAsync(jscript2);
+                        Task.WaitAll(new Task[] { t2 });
 
                         FileLog.Info("start to submit", LogType.Info);
                         Debug.WriteLine("start to submit");
                         string jscript3 = "$(\'button[class=\"dj-button\"]\').click();";
-                        Task t = browser.EvaluateScriptAsync(jscript3);
-                        Task.WaitAll(new Task[] { t });
+                        Task t3 = browser.EvaluateScriptAsync(jscript3);
+                        Task.WaitAll(new Task[] { t3 });
                         FileLog.Info("form submitted", LogType.Info);
                         Debug.WriteLine("form submitted");
+                        Thread.Sleep(1000 * 5);
 
                         FileLog.Info("start password", LogType.Info);
                         Debug.WriteLine("start password");
+
+                        string jscript4 = "$(\'input[class=p1]\').val(\'83857\');";
+                        Task t4 = browser.EvaluateScriptAsync(jscript4);
+                        Task.WaitAll(new Task[] { t4 });
                         Thread.Sleep(1000 * 5);
-                        this._browser.Focus();
-                        Thread.Sleep(1000 * 5);
-                        SendKeys.SendWait("8");
-                        Thread.Sleep(1000);
-                        this._browser.Focus();
-                        SendKeys.SendWait("3");
-                        Thread.Sleep(1000);
-                        this._browser.Focus();
-                        SendKeys.SendWait("8");
-                        Thread.Sleep(1000);
-                        this._browser.Focus();
-                        SendKeys.SendWait("5");
-                        Thread.Sleep(1000);
-                        this._browser.Focus();
-                        SendKeys.SendWait("7");
-                        Thread.Sleep(1000);
-                        this._browser.Focus();
-                        SendKeys.SendWait("8");
+
+                        FileLog.Info("start key event", LogType.Info);
+                        Debug.WriteLine("start key event");
+                        KeyEvent k = new KeyEvent();
+                        k.WindowsKeyCode = 0x38;
+                        k.FocusOnEditableField = true;
+                        k.IsSystemKey = false;
+                        k.Type = KeyEventType.Char;
+                        browser.GetBrowser().GetHost().SendKeyEvent(k);
+
                         FileLog.Info("password is done", LogType.Info);
                         Debug.WriteLine("password is done");
 
-                        Thread.Sleep(1000*15);
+                        Thread.Sleep(1000 * 15);
                         FileLog.Info("purchase is ok", LogType.Info);
                         Debug.WriteLine("purchase is ok");
                         string j = "$(\"span:contains(\'￥\')\").parent().text();";
                         FileLog.Info("trying to get result info", LogType.Info);
-                        Task<CefSharp.JavascriptResponse> t1 = browser.EvaluateScriptAsync(j);
-                        Task.WaitAll(new Task[] { t1 });
-                        this._result = t1.Result.Result.ToString();
+                        Task<CefSharp.JavascriptResponse> t11 = browser.EvaluateScriptAsync(j);
+                        Task.WaitAll(new Task[] { t11 });
+                        this._result = t11.Result.Result.ToString();
                         this._done = true;
                         Debug.WriteLine("this operation is done with result " + this._result);
                         FileLog.Info("this operation is done with result " + this._result, LogType.Info);
@@ -226,7 +207,7 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        private void OnIsBrowserInitializedChanged(object sender, IsBrowserInitializedChangedEventArgs args)
+        private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
         {
             if (sender is ChromiumWebBrowser browser && browser.IsBrowserInitialized)
             {
@@ -234,16 +215,6 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        private List<string> GetStringArray(string s)
-        {
-            List<string> list = new List<string>();
-            for (int i = 0; i < s.Length; i++)
-            {
-                string t = s.Substring(i, 1);
-                list.Add(t);
-            }
-            return list;
-        }
     }
 
 }

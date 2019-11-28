@@ -45,24 +45,27 @@ namespace AutomaticInvestmentPlan_Host
                     try
                     {
                         InvestmentService investmentService = new InvestmentService();
-                        TimeSpan start = new TimeSpan(14, 50, 0);
-                        TimeSpan end = new TimeSpan(14, 52, 0);
-                        while (_signal)
-                        {
-                            //if (CheckWhetherInCorespondingTime(start, end))
-                            //{
-                            //    FileLog.Info("Start to execute", LogType.Info);
-                            //    investmentService.Execute("240014");
-                            //}
-                            //else
-                            //{
-                            //    FileLog.Debug("skip this loop", LogType.Debug);
-                            //}
-                            FileLog.Info("Start to execute", LogType.Info);
-                            investmentService.Execute("240014");
-                            Thread.Sleep(1000 * 60 * 200);
+                        FileLog.Info("Start to execute", LogType.Info);
+                        CacheUtil.BuyAmount = "11";
+                        investmentService.Execute("240014");
 
-                        }
+                        //TimeSpan start = new TimeSpan(14, 50, 0);
+                        //TimeSpan end = new TimeSpan(14, 52, 0);
+                        //while (_signal)
+                        //{
+                        //    //if (CheckWhetherInCorespondingTime(start, end))
+                        //    //{
+                        //    //    FileLog.Info("Start to execute", LogType.Info);
+                        //    //    investmentService.Execute("240014");
+                        //    //}
+                        //    //else
+                        //    //{
+                        //    //    FileLog.Debug("skip this loop", LogType.Debug);
+                        //    //}
+
+                        //    Thread.Sleep(1000 * 60 * 200);
+
+                        //}
                     }
                     catch (Exception e)
                     {

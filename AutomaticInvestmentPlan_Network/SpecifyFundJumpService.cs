@@ -115,7 +115,7 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        private void OnIsBrowserInitializedChanged(object sender, IsBrowserInitializedChangedEventArgs args)
+        private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
         {
             if (sender is ChromiumWebBrowser browser && browser.IsBrowserInitialized)
             {

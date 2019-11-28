@@ -192,6 +192,7 @@ namespace AutomaticInvestmentPlan_Form
             }
             //int investAmount = Convert.ToInt32(amount);
             int investAmount = 11;
+            CacheUtil.BuyAmount = "11";
             Task.Factory.StartNew(() =>
             {
                 BuyService buyService = new BuyService();
