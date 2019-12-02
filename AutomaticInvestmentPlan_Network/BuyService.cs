@@ -18,9 +18,11 @@ namespace AutomaticInvestmentPlan_Network
         private const string _loginUrl = "https://danjuanapp.com/account/login";
         private readonly ChromiumWebBrowser _browser;
 
-        private int _amount;
         private string _result;
         private bool _done;
+        private readonly Form _f;
+
+        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         public BuyService()
         {
@@ -35,9 +37,8 @@ namespace AutomaticInvestmentPlan_Network
                 Dock = DockStyle.Fill,
             };
 
-            Form f = new MountForm();
-            f.Text = "BuyForm";
-            f.Controls.Add(_browser);
+            _f = new MountForm {Text = @"BuyForm"};
+            _f.Controls.Add(_browser);
             _browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
             _browser.FrameLoadEnd += OnFrameLoadEnd;
             _browser.LoadError += OnLoadError;
@@ -45,22 +46,29 @@ namespace AutomaticInvestmentPlan_Network
             _browser.JsDialogHandler = new JsDialogHandler();
             _browser.RequestHandler = new MyRequestHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
-            Task.Factory.StartNew(() =>
-            {
-                Control.CheckForIllegalCrossThreadCalls = false;
-                Application.Run(f);
-            });
+
             FileLog.Info("BuySerice class is constructed", LogType.Info);
             Debug.WriteLine("BuySerice class is constructed");
 
         }
 
 
-        public string ExecuteBuy(int amount)
+        public string ExecuteBuy()
         {
             FileLog.Info("start ExecuteBuy method", LogType.Info);
             Debug.WriteLine("start ExecuteBuy method");
-            this._amount = amount;
+
+            Task.Factory.StartNew2(() =>
+            {
+                Control.CheckForIllegalCrossThreadCalls = false;
+                if (_f != null)
+                {
+                    FileLog.Info("start render form in BuyService", LogType.Info);
+                    Debug.WriteLine("start render form in BuyService");
+                    Application.Run(_f);
+                }
+            });
+
             DateTime beginTime = DateTime.Now;
             FileLog.Info("trying to load login page", LogType.Info);
             Debug.WriteLine("trying to load login page");
@@ -79,16 +87,26 @@ namespace AutomaticInvestmentPlan_Network
             _browser.Load(_loginUrl);
             FileLog.Info("login page is loading", LogType.Info);
             Debug.WriteLine("login page is loading");
-            while (_done == false)
+            Task t =Task.Factory.StartNew2(() =>
             {
-                TimeSpan midTime = DateTime.Now - beginTime;
-                if (midTime.TotalMinutes > 3)
+                while (_done == false)
                 {
-                    throw new Exception("crawl time out");
+                    TimeSpan midTime = DateTime.Now - beginTime;
+                    if (midTime.TotalMinutes > 3)
+                    {
+                        _tokenSource.Cancel();
+                        _browser.Dispose();
+                        _f.Dispose();
+                        throw new Exception("crawl time out");
+                    }
+                    Thread.Sleep(1000 * 2);
                 }
-                Thread.Sleep(1000 * 2);
-            }
-            _browser.Dispose();
+                _tokenSource.Cancel();
+                _browser.Dispose();
+                _f.Dispose();
+            });
+
+            Task.WaitAll(t);
             FileLog.Info("end ExecuteBuy method", LogType.Info);
             FileLog.Info("return result is " + this._result, LogType.Info);
             return _result;
@@ -96,7 +114,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnFrameLoadEnd(object sender, EventArgs e)
         {
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew2(() =>
             {
                 try
                 {
@@ -129,7 +147,8 @@ namespace AutomaticInvestmentPlan_Network
                         Debug.WriteLine("purchage page loaded");
 
                         Thread.Sleep(1000 * 5);
-                        string jscript1 = "$(\'input[Name=\"amount\"]\').val(11);";
+
+                        string jscript1 = $"$(\'input[Name=\"amount\"]\').val({CacheUtil.BuyAmount});";
                         Task t1 = browser.EvaluateScriptAsync(jscript1);
                         Task.WaitAll(new Task[] { t1 });
                         FileLog.Info("amount is already input", LogType.Info);
@@ -193,7 +212,6 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
-            //FileLog.Error("OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
@@ -201,9 +219,6 @@ namespace AutomaticInvestmentPlan_Network
             if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
                 && (e.Message.Contains("setPostLink") == false))
             {
-                //FileLog.Error("OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
-                //ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
-                //browser?.Dispose();
             }
         }
 
@@ -211,7 +226,7 @@ namespace AutomaticInvestmentPlan_Network
         {
             if (sender is ChromiumWebBrowser browser && browser.IsBrowserInitialized)
             {
-                browser.ShowDevTools();
+                //browser.ShowDevTools();
             }
         }
 

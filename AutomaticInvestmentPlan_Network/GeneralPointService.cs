@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,7 @@ namespace AutomaticInvestmentPlan_Network
         private readonly ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
-        private Task _t;
-        CancellationTokenSource _cts = new CancellationTokenSource();
-        private CancellationToken _ct;
+        private Form _f;
 
         public GeneralPointService()
         {
@@ -32,25 +31,44 @@ namespace AutomaticInvestmentPlan_Network
                 Location = new Point(0, 0),
                 Dock = DockStyle.Fill,
             };
-            Form f = new MountForm();
-            f.Visible = false;
-            f.Controls.Add(_browser);
+            _f = new MountForm();
+            _f.Controls.Add(_browser);
             _browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
             _browser.FrameLoadEnd += OnFrameLoadEnd;
             _browser.LoadError += OnLoadError;
             _browser.ConsoleMessage += OnConsoleMessage;
             _browser.JsDialogHandler = new JsDialogHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
-            _t = Task.Factory.StartNew(() =>
-            {
-                Control.CheckForIllegalCrossThreadCalls = false;
-                Application.Run(f);
-            }, _ct);
-            //f.Show();
+
+            FileLog.Info("GeneralPointService class is constructed", LogType.Info);
+            Debug.WriteLine("GeneralPointService class is constructed");
         }
 
         public string ExecuteCrawl()
         {
+            Task.Factory.StartNew2(() =>
+            {
+                Control.CheckForIllegalCrossThreadCalls = false;
+                if (_f != null)
+                {
+                    FileLog.Info("start render form in GeneralPointService", LogType.Info);
+                    Debug.WriteLine("start render form in GeneralPointService");
+                    Application.Run(_f);
+                }
+            });
+
+            bool signal = true;
+            while (signal)
+            {
+                if (this._browser.IsBrowserInitialized == false)
+                {
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    signal = false;
+                }
+            }
             DateTime beginTime = DateTime.Now;
             _browser.Load(Url);
             while (_done == false)
@@ -58,12 +76,16 @@ namespace AutomaticInvestmentPlan_Network
                 TimeSpan midTime = DateTime.Now - beginTime;
                 if (midTime.TotalMinutes > 3)
                 {
-                   _cts.Cancel();// need to implement inner logic
-                    throw new Exception("crawl time out");
+                    _browser.Dispose();
+                    _f.Dispose();
+                    throw new Exception("GeneralPointService crawl time out");
                 }
                 Thread.Sleep(1000 * 2);
             }
             _browser.Dispose();
+            _f.Dispose();
+
+            Thread.Sleep(1000*45);
             return _result;
         }
 
@@ -75,10 +97,10 @@ namespace AutomaticInvestmentPlan_Network
                 {
                     ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
                     CefSharp.FrameLoadEndEventArgs p = e as CefSharp.FrameLoadEndEventArgs;
-                    if (p != null && p.Url== "https://www.txfund.com/")
+                    if (p != null && p.Url == "https://www.txfund.com/")
                     {
                         List<Task> tasks = new List<Task>();
-                        string jscript1 = string.Format("$(\'.js-s_sh000001\').find(\'.js-num\').html() + \':\' +$(\'.js-s_sh000001\').find(\'.js-rate\').html();");
+                        string jscript1 = "$(\'.js-s_sh000001\').find(\'.js-num\').html() + \':\' +$(\'.js-s_sh000001\').find(\'.js-rate\').html();";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
                         tasks.Add(task1);
                         Task.WaitAll(tasks.ToArray());

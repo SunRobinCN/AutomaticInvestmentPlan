@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,7 @@ namespace AutomaticInvestmentPlan_Network
         private readonly ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
-        private Task _t;
-        CancellationTokenSource _cts = new CancellationTokenSource();
-        private CancellationToken _ct;
+        private readonly Form _f;
 
         public SpecifyFundJumpService()
         {
@@ -32,26 +31,46 @@ namespace AutomaticInvestmentPlan_Network
                 Location = new Point(0, 0),
                 Dock = DockStyle.Fill,
             };
-            Form f = new MountForm();
-            f.Visible = false;
-            f.Controls.Add(_browser);
+            _f = new MountForm();
+            _f.Controls.Add(_browser);
             _browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
             _browser.FrameLoadEnd += OnFrameLoadEnd;
             _browser.LoadError += OnLoadError;
             _browser.ConsoleMessage += OnConsoleMessage;
             _browser.JsDialogHandler = new JsDialogHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
-            _t = Task.Factory.StartNew(() =>
-            {
-                Control.CheckForIllegalCrossThreadCalls = false;
-                Application.Run(f);
-            }, _ct);
-            //f.Show();
 
+            FileLog.Info("SpecifyFundJumpService class is constructed", LogType.Info);
+            Debug.WriteLine("SpecifyFundJumpService class is constructed");
         }
 
         public string ExecuteCrawl(string fundId)
         {
+            
+            Task.Factory.StartNew2(() =>
+            {
+                Control.CheckForIllegalCrossThreadCalls = false;
+                if (_f != null)
+                {
+                    FileLog.Info("start render form in SpecifyFundJumpService", LogType.Info);
+                    Debug.WriteLine("start render form in SpecifyFundJumpService");
+                    Application.Run(_f);
+                }
+            });
+
+            bool signal = true;
+            while (signal)
+            {
+                if (this._browser.IsBrowserInitialized == false)
+                {
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    signal = false;
+                }
+            }
+
             DateTime beginTime = DateTime.Now;
             _url = _url + fundId + ".html";
             _browser.Load(_url);
@@ -60,28 +79,29 @@ namespace AutomaticInvestmentPlan_Network
                 TimeSpan midTime = DateTime.Now - beginTime;
                 if (midTime.TotalMinutes > 3)
                 {
-                    _cts.Cancel();// need to implement inner logic
-                    throw new Exception("crawl time out");
+                    _browser.Dispose();
+                    _f.Dispose();
+                    throw new Exception("SpecifyFundJumpService crawl time out");
                 }
                 Thread.Sleep(1000 * 2);
             }
             _browser.Dispose();
+            _f.Dispose();
             return _result;
         }
 
         void OnFrameLoadEnd(object sender, EventArgs e)
         {
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew2(() =>
             {
                 try
                 {
                     ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
-                    CefSharp.FrameLoadEndEventArgs p = e as CefSharp.FrameLoadEndEventArgs;
-                    if (p != null && p.Url.Contains(_url))
+                    if (e is FrameLoadEndEventArgs p && p.Url.Contains(_url))
                     {
+                        Thread.Sleep(1000*30);
                         List<Task> tasks = new List<Task>();
-                        Thread.Sleep(1000*10);
-                        string jscript1 = string.Format("document.getElementById(\'gz_gszzl\').innerText;");
+                        string jscript1 = "document.getElementById(\'gz_gszzl\').innerText;";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
                         tasks.Add(task1);
                         Task.WaitAll(tasks.ToArray());
@@ -95,24 +115,16 @@ namespace AutomaticInvestmentPlan_Network
                     FileLog.Error("OnFrameLoadEnd", exception, LogType.Error);
                 }
 
-            }, _ct);
+            });
         }
 
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
-            //FileLog.Error("OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
-                && (e.Message.Contains("setPostLink") == false))
-            {
-                //FileLog.Error("OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
-                //ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
-                //browser?.Dispose();
-            }
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -120,7 +132,6 @@ namespace AutomaticInvestmentPlan_Network
             if (sender is ChromiumWebBrowser browser && browser.IsBrowserInitialized)
             {
                 //browser.ShowDevTools();
-                //browser.Load(_loginUrl);
             }
         }
     }

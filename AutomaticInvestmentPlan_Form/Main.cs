@@ -196,8 +196,8 @@ namespace AutomaticInvestmentPlan_Form
             Task.Factory.StartNew(() =>
             {
                 BuyService buyService = new BuyService();
-                string r = buyService.ExecuteBuy(investAmount);
-                MessageBox.Show(this, r);
+                //string r = buyService.ExecuteBuy(investAmount);
+                //MessageBox.Show(this, r);
             });
         }
     }
