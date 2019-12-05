@@ -54,7 +54,7 @@ namespace AutomaticInvestmentPlan_Form
 
         private void Main_Shown(object sender, EventArgs e)
         {
-            //DisplayData();
+            DisplayData();
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -196,7 +196,7 @@ namespace AutomaticInvestmentPlan_Form
             Task.Factory.StartNew(() =>
             {
                 BuyService buyService = new BuyService();
-                //string r = buyService.ExecuteBuy(investAmount);
+                string r = buyService.ExecuteBuy();
                 //MessageBox.Show(this, r);
             });
         }

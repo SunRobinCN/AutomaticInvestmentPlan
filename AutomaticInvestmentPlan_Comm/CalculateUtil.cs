@@ -5,8 +5,8 @@ namespace AutomaticInvestmentPlan_Comm
     public static class CalculateUtil
     {
         private static readonly int _baseGeneralPoint = 3000;
-        private static readonly int _baseAmount = 20;
-        private static readonly int _jumpBaseAmount = 300;
+        private static readonly int _baseAmount = 50;
+        private static readonly int _jumpBaseAmount = 399;
 
         public static double CalcuateInvestmentAmount(double genralPoint, double estimatedJump, List<double> jumpHistory)
         {

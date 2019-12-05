@@ -133,15 +133,15 @@ namespace AutomaticInvestmentPlan_Host
             FileLog.Info("All the tasks are done", LogType.Info);
             Debug.WriteLine("All the tasks are done");
             Console.WriteLine(@"All the tasks are done");
-            double result = CalculateUtil.CalcuateInvestmentAmount(CacheUtil.GeneralPoint,
+            double investAmount = CalculateUtil.CalcuateInvestmentAmount(CacheUtil.GeneralPoint,
                 CacheUtil.SpecifyEstimationJumpPoint, CacheUtil.SpecifyPointJumpHistory);
-            CacheUtil.BuyAmount = Math.Round(result).ToString(CultureInfo.CurrentCulture);
+            CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
 
             Task t5 = Task.Factory.StartNew2(() =>
             {
                 try
                 {
-                    if (result > 0)
+                    if (investAmount > 0)
                     {
                         FileLog.Info("Task5 buy started with " + CacheUtil.BuyAmount + " amount", LogType.Info);
                         Console.WriteLine(@"Task5 buy started with " + CacheUtil.BuyAmount + @" amount");
@@ -154,6 +154,7 @@ namespace AutomaticInvestmentPlan_Host
                     }
                     else
                     {
+                        CacheUtil.BuyResult = "0";
                         FileLog.Info("Not but today", LogType.Info);
                     }
                 }
@@ -174,7 +175,7 @@ namespace AutomaticInvestmentPlan_Host
             }
             string body =
                 $"今日上证指数{CacheUtil.GeneralPoint}\r\n\r\n{CacheUtil.Name}\r\n今日本基金预估涨跌{CacheUtil.SpecifyEstimationJumpPoint * 100}%\r\n" +
-                $"今日本期定投金额为{Math.Round(result)}\r\n本基金历史业绩{builder}\r\n" +
+                $"今日本期定投金额为{Math.Round(investAmount)}\r\n本基金历史业绩{builder}\r\n" +
                 $"今日本期定投结果为{CacheUtil.BuyResult}";
             EmailUtil.Send(subject, body);
             Console.WriteLine(@"email is sent out");
