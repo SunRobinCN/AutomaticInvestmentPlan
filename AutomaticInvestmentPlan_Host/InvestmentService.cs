@@ -12,17 +12,35 @@ using AutomaticInvestmentPlan_Network;
 
 namespace AutomaticInvestmentPlan_Host
 {
-    public class InvestmentService
+    public class InvestmentService : IDisposable
     {
         private readonly GeneralPointService _generalPointService = new GeneralPointService();
         private readonly SpecifyFundJumpService _specifyFundJumpService = new SpecifyFundJumpService();
         private readonly SpecifyFundHistoryJumpService _specifyFundHistoryJumpService = new SpecifyFundHistoryJumpService();
         private readonly SpecifyFundNameService _specifyFundNameService = new SpecifyFundNameService();
-        private readonly BuyService _buyService = new BuyService();
+        private readonly SpecifyFundBuyService _specifyFundBuyService = new SpecifyFundBuyService();
 
         public void Execute(string fundId)
         {
             CacheUtil.RefrshCache();
+
+            bool executeTimeout = false;
+            DateTime beginTime = DateTime.Now;
+            Task.Factory.StartNew(() =>
+            {
+                while (executeTimeout == false)
+                {
+                    TimeSpan midTime = DateTime.Now - beginTime;
+                    if (midTime.TotalMinutes > 5)
+                    {
+                        executeTimeout = true;
+                        this.Dispose();
+                        Thread.Sleep(1000 * 30);
+                        throw new CustomTimeoutException("time out");
+                    }
+                    Thread.Sleep(1000 * 1);
+                }
+            });
 
             Task t1 = Task.Factory.StartNew2(() =>
             {
@@ -64,7 +82,7 @@ namespace AutomaticInvestmentPlan_Host
                     Console.WriteLine(e);
                     FileLog.Error("", e, LogType.Error);
                 }
-                
+
             });
 
             Task t3 = Task.Factory.StartNew2(() =>
@@ -124,8 +142,6 @@ namespace AutomaticInvestmentPlan_Host
                 t1,t2,t3,t4
             };
 
-            Task.WaitAll(tasks.ToArray());
-
             FileLog.Info("Start to wait for all the tasks to be done", LogType.Info);
             Debug.WriteLine("Start to wait for all the tasks to be done");
             Console.WriteLine(@"Start to wait for all the tasks to be done");
@@ -146,16 +162,21 @@ namespace AutomaticInvestmentPlan_Host
                         FileLog.Info("Task5 buy started with " + CacheUtil.BuyAmount + " amount", LogType.Info);
                         Console.WriteLine(@"Task5 buy started with " + CacheUtil.BuyAmount + @" amount");
                         Debug.WriteLine("Task5 buy started with " + CacheUtil.BuyAmount + " amount");
-                        string r = _buyService.ExecuteBuy();
+                        string r = _specifyFundBuyService.ExecuteBuy();
                         FileLog.Info("Task5 ended with " + r, LogType.Info);
                         Console.WriteLine(@"Task5 ended with " + r);
                         Debug.WriteLine("Task5 ended with " + r);
                         CacheUtil.BuyResult = r;
+                        if (string.IsNullOrEmpty(r) == false)
+                        {
+                            FileUtil.WriteSingalToFile();
+                        }
                     }
                     else
                     {
                         CacheUtil.BuyResult = "0";
-                        FileLog.Info("Not but today", LogType.Info);
+                        FileUtil.WriteSingalToFile();
+                        FileLog.Info("Not buy today", LogType.Info);
                     }
                 }
                 catch (Exception e)
@@ -165,25 +186,16 @@ namespace AutomaticInvestmentPlan_Host
                 }
             });
             Task.WaitAll(t5);
-
-
-            string subject = "Investment Reminder";
-            StringBuilder builder = new StringBuilder();
-            foreach (double d in CacheUtil.SpecifyPointJumpHistory)
-            {
-                builder.Append(d * 100 + "%  ");
-            }
-            string body =
-                $"今日上证指数{CacheUtil.GeneralPoint}\r\n\r\n{CacheUtil.Name}\r\n今日本基金预估涨跌{CacheUtil.SpecifyEstimationJumpPoint * 100}%\r\n" +
-                $"今日本期定投金额为{Math.Round(investAmount)}\r\n本基金历史业绩{builder}\r\n" +
-                $"今日本期定投结果为{CacheUtil.BuyResult}";
-            EmailUtil.Send(subject, body);
-            Console.WriteLine(@"email is sent out");
-            FileLog.Info("email is sent out", LogType.Info);
-            Debug.WriteLine("email is sent out");
-
-
             Console.WriteLine("done");
+        }
+
+        public void Dispose()
+        {
+            _generalPointService.Dispose();
+            _specifyFundJumpService.Dispose();
+            _specifyFundHistoryJumpService.Dispose();
+            _specifyFundNameService.Dispose();
+            _specifyFundBuyService.Dispose();
         }
     }
 }

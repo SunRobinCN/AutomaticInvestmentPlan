@@ -11,13 +11,13 @@ using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundNameService
+    public class SpecifyFundNameService : IDisposable
     {
         private string _url = "https://danjuanapp.com/funding/";
-        private readonly ChromiumWebBrowser _browser;
+        private ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
-        private readonly Form _f;
+        private Form _f;
 
         public SpecifyFundNameService()
         {
@@ -122,14 +122,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
+            FileLog.Error("SpecifyFundNameService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
-                && (e.Message.Contains("setPostLink") == false))
-            {
-            }
+            FileLog.Error("SpecifyFundNameService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -138,6 +136,14 @@ namespace AutomaticInvestmentPlan_Network
             {
                 //browser.ShowDevTools();
             }
+        }
+
+        public void Dispose()
+        {
+            _browser.Dispose();
+            _f.Dispose();
+            _browser = null;
+            _f = null;
         }
     }
 

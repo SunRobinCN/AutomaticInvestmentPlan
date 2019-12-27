@@ -195,8 +195,8 @@ namespace AutomaticInvestmentPlan_Form
             CacheUtil.BuyAmount = "11";
             Task.Factory.StartNew(() =>
             {
-                BuyService buyService = new BuyService();
-                string r = buyService.ExecuteBuy();
+                SpecifyFundBuyService specifyFundBuyService = new SpecifyFundBuyService();
+                string r = specifyFundBuyService.ExecuteBuy();
                 //MessageBox.Show(this, r);
             });
         }

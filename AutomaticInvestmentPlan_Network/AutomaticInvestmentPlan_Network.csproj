@@ -71,7 +71,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuyService.cs" />
+    <Compile Include="JSHandler.cs" />
+    <Compile Include="SpecifyFundBuyService.cs" />
     <Compile Include="CookieVisitor.cs" />
     <Compile Include="FindReplaceResponseFilter.cs" />
     <Compile Include="GeneralPointService.cs" />

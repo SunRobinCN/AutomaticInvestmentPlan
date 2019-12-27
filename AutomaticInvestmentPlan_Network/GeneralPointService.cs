@@ -11,10 +11,10 @@ using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class GeneralPointService
+    public class GeneralPointService : IDisposable
     {
         private const string Url = "https://www.txfund.com";
-        private readonly ChromiumWebBrowser _browser;
+        private ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
         private Form _f;
@@ -82,10 +82,8 @@ namespace AutomaticInvestmentPlan_Network
                 }
                 Thread.Sleep(1000 * 2);
             }
-            _browser.Dispose();
-            _f.Dispose();
 
-            Thread.Sleep(1000*45);
+            Thread.Sleep(1000*30);
             return _result;
         }
 
@@ -120,18 +118,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
-            //FileLog.Error("OnLoadError", new Exception(e.ErrorText), LogType.Error);
+            FileLog.Error("GeneralPointService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
-                && (e.Message.Contains("setPostLink") == false))
-            {
-                //FileLog.Error("OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
-                //ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
-                //browser?.Dispose();
-            }
+            FileLog.Error("GeneralPointService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -142,44 +134,15 @@ namespace AutomaticInvestmentPlan_Network
                 //browser.Load(_loginUrl);
             }
         }
-    }
 
-    public class JsDialogHandler : IJsDialogHandler
-    {
-        public bool OnJSDialog(IWebBrowser browserControl, IBrowser browser, string originUrl, string acceptLang,
-            CefJsDialogType dialogType, string messageText, string defaultPromptText, IJsDialogCallback callback,
-            ref bool suppressMessage)
+        public void Dispose()
         {
-            callback.Continue(true);
-            return true;
-        }
-
-        public bool OnJSBeforeUnload(IWebBrowser browserControl, IBrowser browser, string message, bool isReload,
-            IJsDialogCallback callback)
-        {
-            return true;
-        }
-
-        public bool OnJSDialog(IWebBrowser chromiumWebBrowser, IBrowser browser, string originUrl, CefJsDialogType dialogType,
-            string messageText, string defaultPromptText, IJsDialogCallback callback, ref bool suppressMessage)
-        {
-            callback.Continue(true);
-            return true;
-        }
-
-        public bool OnBeforeUnloadDialog(IWebBrowser chromiumWebBrowser, IBrowser browser, string messageText, bool isReload,
-            IJsDialogCallback callback)
-        {
-            return true;
-        }
-
-        public void OnResetDialogState(IWebBrowser browserControl, IBrowser browser)
-        {
-        }
-
-        public void OnDialogClosed(IWebBrowser browserControl, IBrowser browser)
-        {
+            _browser.Dispose();
+            _f.Dispose();
+            _f = null;
         }
     }
+
+    
 
 }

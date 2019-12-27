@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AutomaticInvestmentPlan_Comm;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -11,19 +12,26 @@ namespace AutomaticInvestmentPlan_Network
     {
         public bool WhetherWorkDay()
         {
-            string url = "http://api.goseek.cn/Tools/holiday?date=" + DateTime.Now.ToString("yyyyMMdd");
-
-            using (HttpClient client = new HttpClient())
+            bool result = false;
+            try
             {
-               Task<string> t = client.GetStringAsync(url);
-                string r = t.Result;
-                QueryResultModel m = QueryResultModel.FromJson(r);
-                if (m.Data == 0)
+                string url = "http://api.goseek.cn/Tools/holiday?date=" + DateTime.Now.ToString("yyyyMMdd");
+
+                using (HttpClient client = new HttpClient())
                 {
-                    return true;
+                    Task<string> t = client.GetStringAsync(url);
+                    string r = t.Result;
+                    QueryResultModel m = QueryResultModel.FromJson(r);
+                    result = m.Data == 0;
                 }
             }
-            return false;
+            catch (Exception e)
+            {
+                CombineLog.LogError("WorkDayService.WhetherWorkDay", e);
+                result = true;
+            }
+            
+            return result;
         }
     }
 

@@ -4,9 +4,9 @@ namespace AutomaticInvestmentPlan_Comm
 {
     public static class CalculateUtil
     {
-        private static readonly int _baseGeneralPoint = 3000;
-        private static readonly int _baseAmount = 50;
-        private static readonly int _jumpBaseAmount = 399;
+        private static readonly int _baseGeneralPoint = 3500;
+        private static readonly int _baseAmount = 30;
+        private static readonly int _jumpBaseAmount = 3000;
 
         public static double CalcuateInvestmentAmount(double genralPoint, double estimatedJump, List<double> jumpHistory)
         {
@@ -14,7 +14,7 @@ namespace AutomaticInvestmentPlan_Comm
             {
                 return 0;
             }
-            //距离3000点每点0.1元
+            //距离_baseGeneralPoint点每点0.1元
             double acculatedAmount1 = 0.1 * (genralPoint - _baseGeneralPoint) * -1;
             double acculatedAmount2 = 0;
             double amountForDay0 = _jumpBaseAmount * estimatedJump * -1;

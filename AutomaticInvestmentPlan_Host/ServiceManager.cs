@@ -14,8 +14,6 @@ namespace AutomaticInvestmentPlan_Host
     {
         private bool _signal = true;
 
-        private List<Task> _tasks = new List<Task>();
-
         private bool CheckWhetherInCorespondingTime(TimeSpan start, TimeSpan end)
         {
             TimeSpan now = DateTime.Now.TimeOfDay;
@@ -31,46 +29,38 @@ namespace AutomaticInvestmentPlan_Host
             try
             {
                 FileLog.Info("The service is starting", LogType.Info);
-
-                //Task.Factory.StartNew(() =>
-                //{
-                //    while (_signal)
-                //    {
-                //        Debug.WriteLine("Task amount in total " + CacheUtil.Tasks.Count);
-                //        FileLog.Info("Task amount in total " + CacheUtil.Tasks.Count, LogType.Info);
-                //        Console.WriteLine(@"Task amount in total " + CacheUtil.Tasks.Count);
-                //        StringBuilder builer = new StringBuilder();
-                //        foreach (Task task in CacheUtil.Tasks)
-                //        {
-                //            builer.Append(task.Id + " " + task.Status + ",");
-                //        }
-                //        if (builer.Length > 0)
-                //        {
-                //            string r = builer.ToString(0, builer.Length - 1);
-                //            Debug.WriteLine(r);
-                //            FileLog.Debug(r, LogType.Debug);
-                //            Console.WriteLine(r);
-                //        }
-                //        Thread.Sleep(1000 * 30);
-                //    }
-                //});
-
-                Task t= Task.Factory.StartNew2(() =>
+                Task.Factory.StartNew2(() =>
                 {
                     try
                     {
-                        InvestmentService investmentService = new InvestmentService();
                         WorkDayService workDayService = new WorkDayService();
 
-                        TimeSpan start = new TimeSpan(14, 51, 0);
-                        TimeSpan end = new TimeSpan(14, 52, 0);
+                        TimeSpan start = new TimeSpan(14, 50, 0);
+                        TimeSpan end = new TimeSpan(14, 51, 0);
 
                         while (_signal)
                         {
                             if (CheckWhetherInCorespondingTime(start, end) && workDayService.WhetherWorkDay())
                             {
-                                FileLog.Info("Start to execute", LogType.Info);
-                                investmentService.Execute("240014");
+                                string subject = "Investment Reminder";
+                                EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
+
+                                DoExecute();
+
+                                StringBuilder builder = new StringBuilder();
+                                foreach (double d in CacheUtil.SpecifyPointJumpHistory ?? new List<double>())
+                                {
+                                    builder.Append(d * 100 + "%  ");
+                                }
+                                string body =
+                                    $"今日上证指数{CacheUtil.GeneralPoint}\r\n\r\n{CacheUtil.Name}\r\n今日本基金预估涨跌{CacheUtil.SpecifyEstimationJumpPoint * 100}%\r\n" +
+                                    $"今日本期定投金额为{CacheUtil.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
+                                    $"今日本期定投结果为{CacheUtil.BuyResult}";
+                                EmailUtil.Send(subject, body);
+                                Console.WriteLine(@"email is sent out");
+                                FileLog.Info("email is sent out", LogType.Info);
+                                Debug.WriteLine("email is sent out");
+
                             }
                             else
                             {
@@ -89,7 +79,6 @@ namespace AutomaticInvestmentPlan_Host
                         FileLog.Error("Start", e, LogType.Error);
                     }
                 });
-                _tasks.Add(t);
                 FileLog.Info("The service is started", LogType.Info);
             }
             catch (Exception ex)
@@ -100,6 +89,40 @@ namespace AutomaticInvestmentPlan_Host
             return true;
         }
 
+        private static void DoExecute()
+        {
+            int count = 0;
+            bool signal = true;
+            while (signal)
+            {
+                if (FileUtil.ReadSingalFromFile())
+                {
+                    break;
+                }
+                if (count++ > 2)
+                {
+                    break;
+                }
+
+                InvestmentService investmentService = new InvestmentService();
+                try
+                {
+                    FileLog.Info("Start to execute", LogType.Info);
+                    investmentService.Execute("240014");
+                    signal = false;
+                }
+                catch (Exception e)
+                {
+                    CombineLog.LogError("DoExecute", e);
+                }
+                finally
+                {
+                    investmentService.Dispose();
+                }
+            }
+            
+        }
+
 
         public bool Stop(HostControl hostControl)
         {
@@ -107,13 +130,13 @@ namespace AutomaticInvestmentPlan_Host
             {
                 FileLog.Info("The service is stopping", LogType.Info);
                 _signal = false;
+                DateTime beginTime = DateTime.Now;
                 //communicate with OS and stop the windows service gracefully
                 int timeout = 20000;
                 var shutDowntask = Task.Factory.StartNew(() =>
                 {
                     try
                     {
-                        Task.WaitAll(_tasks.ToArray());
                         FileLog.Info("Sub worker threads have stopped", LogType.Info);
                         Console.WriteLine(@"Sub worker threads have stopped");
                     }
@@ -125,6 +148,11 @@ namespace AutomaticInvestmentPlan_Host
                 });
                 while (!shutDowntask.Wait(timeout))
                 {
+                    TimeSpan midTime = DateTime.Now - beginTime;
+                    if (midTime.TotalMinutes > 3)
+                    {
+                        break;
+                    }
                     FileLog.Info("Sub worker threads require another " + (timeout / 1000) + " seconds", LogType.Info);
                     Console.WriteLine($@"Sub worker threads require another {(timeout / 1000)} seconds");
                     hostControl.RequestAdditionalTime(TimeSpan.FromSeconds(timeout));

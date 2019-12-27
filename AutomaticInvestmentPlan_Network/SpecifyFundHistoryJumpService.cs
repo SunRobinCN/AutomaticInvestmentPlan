@@ -11,15 +11,13 @@ using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundHistoryJumpService
+    public class SpecifyFundHistoryJumpService : IDisposable
     {
         private string _url = "https://danjuanapp.com/net-history/";
-        private readonly ChromiumWebBrowser _browser;
+        private ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
-        private readonly Form _f;
-
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private Form _f;
 
         public SpecifyFundHistoryJumpService()
         {
@@ -80,16 +78,12 @@ namespace AutomaticInvestmentPlan_Network
                 TimeSpan midTime = DateTime.Now - beginTime;
                 if (midTime.TotalMinutes > 3)
                 {
-                    _tokenSource.Cancel();
                     _browser.Dispose();
                     _f.Dispose();
                     throw new Exception("SpecifyFundHistoryJumpService crawl time out");
                 }
                 Thread.Sleep(1000 * 2);
             }
-            _tokenSource.Cancel();
-            _browser.Dispose();
-            _f.Dispose();
             return _result;
         }
 
@@ -125,14 +119,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
+            FileLog.Error("SpecifyFundHistoryJumpService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
-                && (e.Message.Contains("setPostLink") == false))
-            {
-            }
+            FileLog.Error("SpecifyFundHistoryJumpService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -141,6 +133,14 @@ namespace AutomaticInvestmentPlan_Network
             {
                 //browser.ShowDevTools();
             }
+        }
+
+        public void Dispose()
+        {
+            _browser.Dispose();
+            _f.Dispose();
+            _browser = null;
+            _f = null;
         }
     }
 

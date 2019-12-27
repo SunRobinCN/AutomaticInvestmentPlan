@@ -11,13 +11,13 @@ using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundJumpService
+    public class SpecifyFundJumpService : IDisposable
     {
         private string _url = "http://fund.eastmoney.com/";
-        private readonly ChromiumWebBrowser _browser;
+        private ChromiumWebBrowser _browser;
         private string _result;
         private bool _done;
-        private readonly Form _f;
+        private Form _f;
 
         public SpecifyFundJumpService()
         {
@@ -85,8 +85,7 @@ namespace AutomaticInvestmentPlan_Network
                 }
                 Thread.Sleep(1000 * 2);
             }
-            _browser.Dispose();
-            _f.Dispose();
+            
             return _result;
         }
 
@@ -121,10 +120,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
+            FileLog.Error("SpecifyFundJumpService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
+            FileLog.Error("SpecifyFundJumpService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -133,6 +134,14 @@ namespace AutomaticInvestmentPlan_Network
             {
                 //browser.ShowDevTools();
             }
+        }
+
+        public void Dispose()
+        {
+            _browser.Dispose();
+            _f.Dispose();
+            _browser = null;
+            _f = null;
         }
     }
 

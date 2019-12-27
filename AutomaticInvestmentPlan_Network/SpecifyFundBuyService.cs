@@ -12,19 +12,17 @@ using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class BuyService
+    public class SpecifyFundBuyService : IDisposable
     {
         private const string _buyUrl = "https://danjuanapp.com/fund/240014/purchase";
         private const string _loginUrl = "https://danjuanapp.com/account/login";
-        private readonly ChromiumWebBrowser _browser;
+        private ChromiumWebBrowser _browser;
 
         private string _result;
         private bool _done;
-        private readonly Form _f;
+        private Form _f;
 
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-
-        public BuyService()
+        public SpecifyFundBuyService()
         {
             if (Cef.IsInitialized == false)
             {
@@ -63,8 +61,8 @@ namespace AutomaticInvestmentPlan_Network
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
                 {
-                    FileLog.Info("start render form in BuyService", LogType.Info);
-                    Debug.WriteLine("start render form in BuyService");
+                    FileLog.Info("start render form in SpecifyFundBuyService", LogType.Info);
+                    Debug.WriteLine("start render form in SpecifyFundBuyService");
                     Application.Run(_f);
                 }
             });
@@ -87,26 +85,19 @@ namespace AutomaticInvestmentPlan_Network
             _browser.Load(_loginUrl);
             FileLog.Info("login page is loading", LogType.Info);
             Debug.WriteLine("login page is loading");
-            Task t =Task.Factory.StartNew2(() =>
-            {
-                while (_done == false)
-                {
-                    TimeSpan midTime = DateTime.Now - beginTime;
-                    if (midTime.TotalMinutes > 3)
-                    {
-                        _tokenSource.Cancel();
-                        _browser.Dispose();
-                        _f.Dispose();
-                        throw new Exception("crawl time out");
-                    }
-                    Thread.Sleep(1000 * 2);
-                }
-                _tokenSource.Cancel();
-                _browser.Dispose();
-                _f.Dispose();
-            });
 
-            Task.WaitAll(t);
+            while (_done == false)
+            {
+                TimeSpan midTime = DateTime.Now - beginTime;
+                if (midTime.TotalMinutes > 3)
+                {
+                    _browser.Dispose();
+                    _f.Dispose();
+                    throw new Exception("crawl time out");
+                }
+                Thread.Sleep(1000 * 2);
+            }
+
             FileLog.Info("end ExecuteBuy method", LogType.Info);
             FileLog.Info("return result is " + this._result, LogType.Info);
             return _result;
@@ -209,17 +200,14 @@ namespace AutomaticInvestmentPlan_Network
             });
         }
 
-
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
+            FileLog.Error("SpecifyFundBuyService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            if (e.Message.Contains("Uncaught") && (e.Message.Contains("modori") == false)
-                && (e.Message.Contains("setPostLink") == false))
-            {
-            }
+            FileLog.Error("SpecifyFundBuyService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
@@ -230,6 +218,13 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
+        public void Dispose()
+        {
+            _browser.Dispose();
+            _f.Dispose();
+            _browser = null;
+            _f = null;
+        }
     }
 
 }
