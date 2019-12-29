@@ -33,14 +33,13 @@ namespace AutomaticInvestmentPlan_Host
                 {
                     try
                     {
-                        WorkDayService workDayService = new WorkDayService();
-
                         TimeSpan start = new TimeSpan(14, 50, 0);
                         TimeSpan end = new TimeSpan(14, 51, 0);
 
                         while (_signal)
                         {
-                            if (CheckWhetherInCorespondingTime(start, end) && workDayService.WhetherWorkDay())
+                            if (CheckWhetherInCorespondingTime(start, end) && DayUtil.WhetherWeekend() == false
+                                && DayUtil.WhetherHoliday() == false)
                             {
                                 string subject = "Investment Reminder";
                                 EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");

@@ -87,7 +87,6 @@
     <Compile Include="SpecifyFundNamePointService.cs" />
     <Compile Include="SpecifyFundHistoryJumpService.cs" />
     <Compile Include="SpecifyFundJumpService.cs" />
-    <Compile Include="WorkDayService.cs" />
     <EmbeddedResource Include="MountForm.resx">
       <DependentUpon>MountForm.cs</DependentUpon>
     </EmbeddedResource>
