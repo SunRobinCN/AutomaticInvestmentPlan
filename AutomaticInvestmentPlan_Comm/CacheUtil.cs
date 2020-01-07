@@ -9,6 +9,8 @@ namespace AutomaticInvestmentPlan_Comm
     {
         public static double GeneralPoint;
 
+        public static string GeneralPointJump;
+
         public static List<double> SpecifyPointJumpHistory;
 
         public static double SpecifyEstimationJumpPoint;

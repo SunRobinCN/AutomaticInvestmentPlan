@@ -52,7 +52,7 @@ namespace AutomaticInvestmentPlan_Host
                                     builder.Append(d * 100 + "%  ");
                                 }
                                 string body =
-                                    $"今日上证指数{CacheUtil.GeneralPoint}\r\n\r\n{CacheUtil.Name}\r\n今日本基金预估涨跌{CacheUtil.SpecifyEstimationJumpPoint * 100}%\r\n" +
+                                    $"今日上证指数{CacheUtil.GeneralPoint}\r\n今日上证涨跌{CacheUtil.GeneralPointJump}\r\n\r\n{CacheUtil.Name}\r\n今日本基金预估涨跌{CacheUtil.SpecifyEstimationJumpPoint * 100}%\r\n" +
                                     $"今日本期定投金额为{CacheUtil.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
                                     $"今日本期定投结果为{CacheUtil.BuyResult}";
                                 EmailUtil.Send(subject, body);

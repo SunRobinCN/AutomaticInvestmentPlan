@@ -52,6 +52,7 @@ namespace AutomaticInvestmentPlan_Host
                     string r = _generalPointService.ExecuteCrawl();
                     GeneralPointModel m = NetworkValueConverter.ConvertToGeneralPointModel(r);
                     CacheUtil.GeneralPoint = Convert.ToDouble(m.Point);
+                    CacheUtil.GeneralPointJump = m.Percentate;
                     FileLog.Info("Task1 ended with general point " + CacheUtil.GeneralPoint, LogType.Info);
                     Console.WriteLine(@"Task1 ended with general point " + CacheUtil.GeneralPoint);
                     Debug.WriteLine("Task1 ended with general point " + CacheUtil.GeneralPoint);
@@ -169,6 +170,7 @@ namespace AutomaticInvestmentPlan_Host
                         CacheUtil.BuyResult = r;
                         if (string.IsNullOrEmpty(r) == false)
                         {
+                            FileLog.Info("Start to write signal file", LogType.Info);
                             FileUtil.WriteSingalToFile();
                         }
                     }

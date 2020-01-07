@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 
 namespace AutomaticInvestmentPlan_Comm
 {
@@ -15,16 +16,32 @@ namespace AutomaticInvestmentPlan_Comm
             mailMessage.BodyEncoding = Encoding.UTF8;
             mailMessage.Subject = subject;
             mailMessage.Body = body;
-            SmtpClient smtpClient = new SmtpClient();
             try
             {
-                smtpClient.Host = "relay.Homecredit.cn";
-                smtpClient.Port = 25;
+                SmtpClient smtpClient = new SmtpClient
+                {
+                    Host = "relay.Homecredit.cn",
+                    Port = 25
+                };
                 smtpClient.Send(mailMessage);
             }
             catch (Exception ex)
             {
-                FileLog.Error("EmailHelper.Send" , ex, LogType.Error);
+                FileLog.Error("EmailHelper.Send1" , ex, LogType.Error);
+                Thread.Sleep(1000*2);
+                try
+                {
+                    SmtpClient smtpClient = new SmtpClient
+                    {
+                        Host = "relay.Homecredit.cn",
+                        Port = 25
+                    };
+                    smtpClient.Send(mailMessage);
+                }
+                catch (Exception e)
+                {
+                    FileLog.Error("EmailHelper.Send2", e, LogType.Error);
+                }
             }
         }
     }
