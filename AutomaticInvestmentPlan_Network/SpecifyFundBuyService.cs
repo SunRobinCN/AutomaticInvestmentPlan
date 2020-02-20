@@ -48,16 +48,14 @@ namespace AutomaticInvestmentPlan_Network
             _browser.RequestHandler = new MyRequestHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
 
-            FileLog.Info("BuySerice class is constructed", LogType.Info);
-            Debug.WriteLine("BuySerice class is constructed");
+            CombineLog.LogInfo("BuySerice class is constructed");
 
         }
 
 
         public string ExecuteBuy(string fundId, string amount)
         {
-            FileLog.Info("start ExecuteBuy method", LogType.Info);
-            Debug.WriteLine("start ExecuteBuy method");
+            CombineLog.LogInfo("start ExecuteBuy method");
             _buyUrl = _buyUrlTemplate.Replace("{fundId}", fundId);
             _amount = amount;
             if (string.IsNullOrEmpty(_buyUrl))
@@ -70,15 +68,13 @@ namespace AutomaticInvestmentPlan_Network
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
                 {
-                    FileLog.Info("start render form in SpecifyFundBuyService", LogType.Info);
-                    Debug.WriteLine("start render form in SpecifyFundBuyService");
+                    CombineLog.LogInfo("start render form in SpecifyFundBuyService");
                     Application.Run(_f);
                 }
             });
 
             DateTime beginTime = DateTime.Now;
-            FileLog.Info("trying to load login page", LogType.Info);
-            Debug.WriteLine("trying to load login page");
+            CombineLog.LogInfo("trying to load login page");
             bool signal = true;
             while (signal)
             {
@@ -92,8 +88,7 @@ namespace AutomaticInvestmentPlan_Network
                 }
             }
             _browser.Load(_loginUrl);
-            FileLog.Info("login page is loading", LogType.Info);
-            Debug.WriteLine("login page is loading");
+            CombineLog.LogInfo("login page is loading");
 
             while (_done == false)
             {
@@ -107,8 +102,8 @@ namespace AutomaticInvestmentPlan_Network
                 Thread.Sleep(1000 * 2);
             }
 
-            FileLog.Info("end ExecuteBuy method", LogType.Info);
-            FileLog.Info("return result is " + this._result, LogType.Info);
+            CombineLog.LogInfo("end ExecuteBuy method");
+            CombineLog.LogInfo("return result is " + this._result);
             return _result;
         }
 
@@ -132,52 +127,41 @@ namespace AutomaticInvestmentPlan_Network
                         string jscript = "$(\'.pass_switch\').click();$(\'#telno\').val(\'18526088356\');$(\'#pass\').val(\'sundacheng838578\');$(\'#next\').click();";
                         Task t = browser.EvaluateScriptAsync(jscript);
                         Task.WaitAll(new Task[] { t });
-                        FileLog.Info("already login, sleep 10 seconds", LogType.Info);
-                        Debug.WriteLine("already login, sleep 10 seconds");
+                        CombineLog.LogInfo("already login, sleep 10 seconds");
                         Thread.Sleep(1000 * 10);
-                        FileLog.Info("tring to load pruchase page", LogType.Info);
-                        Debug.WriteLine("tring to load pruchase page");
+                        CombineLog.LogInfo("tring to load pruchase page");
                         this._browser.Load(_buyUrl);
-                        FileLog.Info("trying to show purchage page", LogType.Info);
-                        Debug.WriteLine("trying to show purchage page");
+                        CombineLog.LogInfo("trying to show purchage page");
                     }
                     if (p != null && p.Url == _buyUrl)
                     {
-                        FileLog.Info("purchage page loaded", LogType.Info);
-                        Debug.WriteLine("purchage page loaded");
-
+                        CombineLog.LogInfo("purchage page loaded");
                         Thread.Sleep(1000 * 5);
 
                         string jscript1 = $"$(\'input[Name=\"amount\"]\').val({_amount});";
                         Task t1 = browser.EvaluateScriptAsync(jscript1);
                         Task.WaitAll(new Task[] { t1 });
-                        FileLog.Info("amount is already input", LogType.Info);
-                        Debug.WriteLine("amount is already input");
+                        CombineLog.LogInfo("amount is already input");
                         Thread.Sleep(1000 * 3);
 
                         string jscript2 = "$(\'button[class=\"dj-button\"]\').removeAttr(\"disabled\");";
                         Task t2 = browser.EvaluateScriptAsync(jscript2);
                         Task.WaitAll(new Task[] { t2 });
 
-                        FileLog.Info("start to submit", LogType.Info);
-                        Debug.WriteLine("start to submit");
+                        CombineLog.LogInfo("start to submit");
                         string jscript3 = "$(\'button[class=\"dj-button\"]\').click();";
                         Task t3 = browser.EvaluateScriptAsync(jscript3);
                         Task.WaitAll(new Task[] { t3 });
-                        FileLog.Info("form submitted", LogType.Info);
-                        Debug.WriteLine("form submitted");
+                        CombineLog.LogInfo("form submitted");
                         Thread.Sleep(1000 * 5);
 
-                        FileLog.Info("start password", LogType.Info);
-                        Debug.WriteLine("start password");
-
+                        CombineLog.LogInfo("start password");
                         string jscript4 = "$(\'input[class=p1]\').val(\'83857\');";
                         Task t4 = browser.EvaluateScriptAsync(jscript4);
-                        Task.WaitAll(new Task[] { t4 });
+                        Task.WaitAll(t4);
                         Thread.Sleep(1000 * 5);
 
-                        FileLog.Info("start key event", LogType.Info);
-                        Debug.WriteLine("start key event");
+                        CombineLog.LogInfo("start key event");
                         KeyEvent k = new KeyEvent();
                         k.WindowsKeyCode = 0x38;
                         k.FocusOnEditableField = true;
@@ -189,17 +173,15 @@ namespace AutomaticInvestmentPlan_Network
                         Debug.WriteLine("password is done");
 
                         Thread.Sleep(1000 * 15);
-                        FileLog.Info("purchase is ok", LogType.Info);
-                        Debug.WriteLine("purchase is ok");
+                        CombineLog.LogInfo("purchase is ok");
                         string j = "$(\"span:contains(\'￥\')\").parent().text();";
-                        FileLog.Info("trying to get result info", LogType.Info);
+                        CombineLog.LogInfo("trying to get result info");
                         Task<CefSharp.JavascriptResponse> t11 = browser.EvaluateScriptAsync(j);
                         Task.WaitAll(new Task[] { t11 });
                         this._result = t11.Result.Result.ToString();
                         this._done = true;
                         JobDone = true;
-                        Debug.WriteLine("this operation is done with result " + this._result);
-                        FileLog.Info("this operation is done with result " + this._result, LogType.Info);
+                        CombineLog.LogInfo("this operation is done with result " + this._result);
                     }
                 }
                 catch (Exception exception)

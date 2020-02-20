@@ -41,8 +41,7 @@ namespace AutomaticInvestmentPlan_Network
             _browser.JsDialogHandler = new JsDialogHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
 
-            FileLog.Info("SpecifyFundNameService class is constructed", LogType.Info);
-            Debug.WriteLine("SpecifyFundNameService class is constructed");
+            CombineLog.LogInfo("SpecifyFundNameService class is constructed");
         }
 
         public string ExecuteCrawl(string fundId)
@@ -52,8 +51,7 @@ namespace AutomaticInvestmentPlan_Network
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
                 {
-                    FileLog.Info("start render form in SpecifyFundNameService", LogType.Info);
-                    Debug.WriteLine("start render form in SpecifyFundNameService");
+                    CombineLog.LogInfo("start render form in SpecifyFundNameService");
                     Application.Run(_f);
                 }
             });

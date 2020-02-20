@@ -41,8 +41,7 @@ namespace AutomaticInvestmentPlan_Network
             _browser.JsDialogHandler = new JsDialogHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
 
-            FileLog.Info("GeneralPointService class is constructed", LogType.Info);
-            Debug.WriteLine("GeneralPointService class is constructed");
+            CombineLog.LogInfo("GeneralPointService class is constructed");
         }
 
         public string ExecuteCrawl()
@@ -52,8 +51,7 @@ namespace AutomaticInvestmentPlan_Network
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
                 {
-                    FileLog.Info("start render form in GeneralPointService", LogType.Info);
-                    Debug.WriteLine("start render form in GeneralPointService");
+                    CombineLog.LogInfo("start render form in GeneralPointService");
                     Application.Run(_f);
                 }
             });
