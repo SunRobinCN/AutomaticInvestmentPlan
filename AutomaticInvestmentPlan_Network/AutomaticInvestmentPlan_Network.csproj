@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JSHandler.cs" />
+    <Compile Include="SpecifyFundSellService.cs" />
     <Compile Include="SpecifyFundBuyService.cs" />
     <Compile Include="CookieVisitor.cs" />
     <Compile Include="FindReplaceResponseFilter.cs" />
@@ -115,6 +116,10 @@
     <ProjectReference Include="..\AutomaticInvestmentPlan_Comm\AutomaticInvestmentPlan_Comm.csproj">
       <Project>{E7631C74-137C-41F6-B399-A94581374E82}</Project>
       <Name>AutomaticInvestmentPlan_Comm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AutomaticInvestmentPlan_Model\AutomaticInvestmentPlan_Model.csproj">
+      <Project>{A790B5BC-C7C7-44D1-91ED-30E555AC3E76}</Project>
+      <Name>AutomaticInvestmentPlan_Model</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

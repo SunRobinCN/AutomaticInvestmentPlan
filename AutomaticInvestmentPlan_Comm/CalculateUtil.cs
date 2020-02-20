@@ -8,7 +8,7 @@ namespace AutomaticInvestmentPlan_Comm
         private static readonly int _baseAmount = 30;
         private static readonly int _jumpBaseAmount = 3000;
 
-        public static double CalcuateInvestmentAmount(double genralPoint, double estimatedJump, List<double> jumpHistory)
+        public static double CalculateInvestmentAmount(double genralPoint, double estimatedJump, List<double> jumpHistory)
         {
             if (estimatedJump > 0)
             {
@@ -43,5 +43,13 @@ namespace AutomaticInvestmentPlan_Comm
             acculatedAmount2 = (amountForDay0 + amountForDay1 + amountForDay2 + amountForDay3) * 4;
             return _baseAmount + acculatedAmount1 + acculatedAmount2;
         }
+
+
+        public static double CalculateInvestmentAmountForUpgradStrategy(double genralPoint, double estimatedJump,
+            List<double> jumpHistory)
+        {
+            return CalculateInvestmentAmount(genralPoint, estimatedJump, jumpHistory);
+        }
+
     }
 }

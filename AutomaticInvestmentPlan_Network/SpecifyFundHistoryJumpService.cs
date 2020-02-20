@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomaticInvestmentPlan_Comm;
+using AutomaticInvestmentPlan_Model;
 using CefSharp;
 using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundHistoryJumpService : IDisposable
+    public class SpecifyFundHistoryJumpService : MyDisposable
     {
         private string _url = "https://danjuanapp.com/net-history/";
         private ChromiumWebBrowser _browser;
@@ -46,7 +47,7 @@ namespace AutomaticInvestmentPlan_Network
 
         public string ExecuteCrawl(string fundId)
         {
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
@@ -89,7 +90,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnFrameLoadEnd(object sender, EventArgs e)
         {
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -106,6 +107,7 @@ namespace AutomaticInvestmentPlan_Network
 
                         _result = task1.Result.Result.ToString();
                         _done = true;
+                        JobDone = true;
                     }
                 }
                 catch (Exception exception)
@@ -135,10 +137,10 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            _browser.Dispose();
-            _f.Dispose();
+            _browser?.Dispose();
+            _f?.Dispose();
             _browser = null;
             _f = null;
         }

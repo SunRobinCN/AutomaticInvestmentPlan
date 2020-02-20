@@ -61,16 +61,22 @@
     <Compile Include="CacheUtil.cs" />
     <Compile Include="CalculateUtil.cs" />
     <Compile Include="CombineLog.cs" />
+    <Compile Include="CustomTimeoutException.cs" />
     <Compile Include="DayUtil.cs" />
     <Compile Include="EmailUtil.cs" />
     <Compile Include="FileUtil.cs" />
-    <Compile Include="HttpResultModel.cs" />
-    <Compile Include="TaskFactoryExtension.cs" />
     <Compile Include="FileLog.cs" />
+    <Compile Include="MethodTimeoutMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AutomaticInvestmentPlan_Model\AutomaticInvestmentPlan_Model.csproj">
+      <Project>{A790B5BC-C7C7-44D1-91ED-30E555AC3E76}</Project>
+      <Name>AutomaticInvestmentPlan_Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

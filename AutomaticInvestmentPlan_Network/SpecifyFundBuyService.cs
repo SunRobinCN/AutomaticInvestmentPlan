@@ -7,14 +7,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomaticInvestmentPlan_Comm;
+using AutomaticInvestmentPlan_Model;
 using CefSharp;
 using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundBuyService : IDisposable
+    public class SpecifyFundBuyService : MyDisposable
     {
-        private const string _buyUrl = "https://danjuanapp.com/fund/240014/purchase";
+        private const string _buyUrlTemplate = "https://danjuanapp.com/fund/{fundId}/purchase";
+        private string _buyUrl;
+        private string _amount;
         private const string _loginUrl = "https://danjuanapp.com/account/login";
         private ChromiumWebBrowser _browser;
 
@@ -51,12 +54,18 @@ namespace AutomaticInvestmentPlan_Network
         }
 
 
-        public string ExecuteBuy()
+        public string ExecuteBuy(string fundId, string amount)
         {
             FileLog.Info("start ExecuteBuy method", LogType.Info);
             Debug.WriteLine("start ExecuteBuy method");
+            _buyUrl = _buyUrlTemplate.Replace("{fundId}", fundId);
+            _amount = amount;
+            if (string.IsNullOrEmpty(_buyUrl))
+            {
+                throw new Exception("fund id is not set");
+            }
 
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
@@ -105,7 +114,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnFrameLoadEnd(object sender, EventArgs e)
         {
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -139,7 +148,7 @@ namespace AutomaticInvestmentPlan_Network
 
                         Thread.Sleep(1000 * 5);
 
-                        string jscript1 = $"$(\'input[Name=\"amount\"]\').val({CacheUtil.BuyAmount});";
+                        string jscript1 = $"$(\'input[Name=\"amount\"]\').val({_amount});";
                         Task t1 = browser.EvaluateScriptAsync(jscript1);
                         Task.WaitAll(new Task[] { t1 });
                         FileLog.Info("amount is already input", LogType.Info);
@@ -188,6 +197,7 @@ namespace AutomaticInvestmentPlan_Network
                         Task.WaitAll(new Task[] { t11 });
                         this._result = t11.Result.Result.ToString();
                         this._done = true;
+                        JobDone = true;
                         Debug.WriteLine("this operation is done with result " + this._result);
                         FileLog.Info("this operation is done with result " + this._result, LogType.Info);
                     }
@@ -218,10 +228,10 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            _browser.Dispose();
-            _f.Dispose();
+            _browser?.Dispose();
+            _f?.Dispose();
             _browser = null;
             _f = null;
         }

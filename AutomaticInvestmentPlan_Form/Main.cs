@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomaticInvestmentPlan_Comm;
 using AutomaticInvestmentPlan_Model;
-using AutomaticInvestmentPlan_Model.Converter;
 using AutomaticInvestmentPlan_Network;
 
 namespace AutomaticInvestmentPlan_Form
@@ -59,9 +58,9 @@ namespace AutomaticInvestmentPlan_Form
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            double r = CalculateUtil.CalcuateInvestmentAmount(CacheUtil.GeneralPoint,
-                CacheUtil.SpecifyEstimationJumpPoint, CacheUtil.SpecifyPointJumpHistory);
-            this.txtEstimateInvestAmount.Text = Convert.ToString(Math.Round(r), CultureInfo.InvariantCulture);
+            //double r = CalculateUtil.CalculateInvestmentAmount(CacheUtil.GeneralPoint,
+            //    SpecifyFundCache.EstimationJumpPoint, SpecifyFundCache.SpecifyPointJumpHistory);
+            //this.txtEstimateInvestAmount.Text = Convert.ToString(Math.Round(r), CultureInfo.InvariantCulture);
         }
 
 
@@ -114,7 +113,7 @@ namespace AutomaticInvestmentPlan_Form
                 this.labGeneralPoint.Text = m.Point;
                 this.labGeneralPointPercentage.Text = m.Percentate;
 
-                CacheUtil.GeneralPoint = Convert.ToDouble(m.Point);
+                //GeneralPointCache.GeneralPoint = Convert.ToDouble(m.Point);
             });
             _tasks.Add(t1);
 
@@ -123,7 +122,7 @@ namespace AutomaticInvestmentPlan_Form
                 string fundId = this.txtFundCode.Text.Trim();
                 string p = _specifyFundPointService.ExecuteCrawl(fundId);
                 this.txtEstimatedPoint.Text = p;
-                CacheUtil.SpecifyEstimationJumpPoint = Convert.ToDouble(p.Substring(0, p.Length - 1)) / 100;
+                //SpecifyFundCache.EstimationJumpPoint = Convert.ToDouble(p.Substring(0, p.Length - 1)) / 100;
             });
             _tasks.Add(t2);
 
@@ -147,15 +146,15 @@ namespace AutomaticInvestmentPlan_Form
                 //double rowHeight = (this.dataGridViewFundHistory.Height-headerHeight)*1.0 / list.Count;
                 //this.dataGridViewFundHistory.RowTemplate.Height = Convert.ToInt32(rowHeight);
                 int count = 0;
-                CacheUtil.SpecifyPointJumpHistory = new List<double>();
-                foreach (HistoryPointModel historyPointModel in list)
-                {
-                    if (count++ < 2)
-                    {
-                        CacheUtil.SpecifyPointJumpHistory.Add
-                            (Convert.ToDouble(historyPointModel.Point.Substring(0, historyPointModel.Point.Length - 1)) / 100);
-                    }
-                }
+                //SpecifyFundCache.SpecifyPointJumpHistory = new List<double>();
+                //foreach (HistoryPointModel historyPointModel in list)
+                //{
+                //    if (count++ < 2)
+                //    {
+                //        SpecifyFundCache.SpecifyPointJumpHistory.Add
+                //            (Convert.ToDouble(historyPointModel.Point.Substring(0, historyPointModel.Point.Length - 1)) / 100);
+                //    }
+                //}
             });
             _tasks.Add(t3);
 
@@ -191,14 +190,14 @@ namespace AutomaticInvestmentPlan_Form
                 amount = this.txtBuyAmount.Text.Trim();
             }
             //int investAmount = Convert.ToInt32(amount);
-            int investAmount = 11;
-            CacheUtil.BuyAmount = "11";
-            Task.Factory.StartNew(() =>
-            {
-                SpecifyFundBuyService specifyFundBuyService = new SpecifyFundBuyService();
-                string r = specifyFundBuyService.ExecuteBuy();
-                //MessageBox.Show(this, r);
-            });
+            //int investAmount = 11;
+            //SpecifyFundCache.BuyAmount = "11";
+            //Task.Factory.StartNew(() =>
+            //{
+            //    SpecifyFundBuyService specifyFundBuyService = new SpecifyFundBuyService();
+            //    string r = specifyFundBuyService.ExecuteBuy();
+            //    //MessageBox.Show(this, r);
+            //});
         }
     }
 }

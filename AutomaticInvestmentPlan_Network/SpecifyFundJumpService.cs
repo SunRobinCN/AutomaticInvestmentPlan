@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomaticInvestmentPlan_Comm;
+using AutomaticInvestmentPlan_Model;
 using CefSharp;
 using CefSharp.WinForms;
 
 namespace AutomaticInvestmentPlan_Network
 {
-    public class SpecifyFundJumpService : IDisposable
+    public class SpecifyFundJumpService : MyDisposable
     {
         private string _url = "http://fund.eastmoney.com/";
         private ChromiumWebBrowser _browser;
@@ -47,7 +48,7 @@ namespace AutomaticInvestmentPlan_Network
         public string ExecuteCrawl(string fundId)
         {
             
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 Control.CheckForIllegalCrossThreadCalls = false;
                 if (_f != null)
@@ -91,7 +92,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnFrameLoadEnd(object sender, EventArgs e)
         {
-            Task.Factory.StartNew2(() =>
+            Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -100,13 +101,16 @@ namespace AutomaticInvestmentPlan_Network
                     {
                         Thread.Sleep(1000*30);
                         List<Task> tasks = new List<Task>();
-                        string jscript1 = "document.getElementById(\'gz_gszzl\').innerText;";
+                        //string jscript1 = "document.getElementById(\'gz_gszzl\').innerText;";
+                        string jscript1 =
+                            "document.getElementById(\'gz_gszzl\').innerText + \'|\' + document.getElementById(\'gz_gsz\').innerText";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
                         tasks.Add(task1);
                         Task.WaitAll(tasks.ToArray());
 
                         _result = task1.Result.Result.ToString();
                         _done = true;
+                        JobDone = true;
                     }
                 }
                 catch (Exception exception)
@@ -136,10 +140,10 @@ namespace AutomaticInvestmentPlan_Network
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            _browser.Dispose();
-            _f.Dispose();
+            _browser?.Dispose();
+            _f?.Dispose();
             _browser = null;
             _f = null;
         }
