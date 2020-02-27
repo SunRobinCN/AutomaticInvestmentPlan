@@ -42,6 +42,7 @@ namespace AutomaticInvestmentPlan_Network
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("GeneralPointService class is constructed");
+            Name = "GeneralPointService";
         }
 
         public string ExecuteCrawl()

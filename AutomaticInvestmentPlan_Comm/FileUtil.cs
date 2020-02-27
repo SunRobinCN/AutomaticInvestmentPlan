@@ -5,44 +5,19 @@ namespace AutomaticInvestmentPlan_Comm
 {
     public static class FileUtil
     {
-        private static readonly string Path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\AutomatciInvestmentPlan";
-        private static readonly string FileName = "\\mark.data";
-
-        public static void WriteSingalToFile()
+        public static void BackUpFile(string orignalPath, string newFilePath, string newName)
         {
-            if (Directory.Exists(Path) == false)
+            if (Directory.Exists(newFilePath) == false)
             {
-                Directory.CreateDirectory(Path);
+                Directory.CreateDirectory(newFilePath);
             }
-            using (FileStream fs = new FileStream(Path + FileName, FileMode.OpenOrCreate))
+            FileInfo file = new FileInfo(orignalPath);
+            FileInfo newFile = new FileInfo(newFilePath + "\\" + newName);
+            if (newFile.Exists == false)
             {
-                StreamWriter sw = new StreamWriter(fs);
-                sw.Write(DateTime.Now.ToString("yyyy-MM-dd"));
-                sw.Close();
+                file.CopyTo(newFilePath + "\\" + newName);
             }
         }
 
-        public static bool ReadSingalFromFile()
-        {
-            try
-            {
-                string result;
-                using (StreamReader reader = new StreamReader(Path + FileName))
-                {
-                    result = reader.ReadToEnd();
-                    reader.Close();
-                }
-                if (result.Contains(DateTime.Now.ToString("yyyy-MM-dd")))
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception e)
-            {
-                CombineLog.LogError("ReadSingalFromFile", e);
-                return false;
-            }
-        }
     }
 }

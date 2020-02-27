@@ -49,6 +49,7 @@ namespace AutomaticInvestmentPlan_Network
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("SpecifyFundSellService class is constructed");
+            Name = "SpecifyFundSellService";
 
         }
 

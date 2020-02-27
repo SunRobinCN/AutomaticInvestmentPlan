@@ -130,7 +130,7 @@ namespace AutomaticInvestmentPlan_DBService
             List<HistoryModel> historyModels = new List<HistoryModel>();
             try
             {
-                string dateStr = DateTime.Now.ToString("yyyy-MM-dd");
+                string dateStr = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd");
                 using (SQLiteConnection cn = new SQLiteConnection(_connStr))
                 {
                     cn.Open();

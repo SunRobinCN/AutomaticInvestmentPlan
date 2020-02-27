@@ -49,7 +49,7 @@ namespace AutomaticInvestmentPlan_Network
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("BuySerice class is constructed");
-
+            Name = "BuySerice";
         }
 
 

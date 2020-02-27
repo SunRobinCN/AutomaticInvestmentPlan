@@ -37,7 +37,20 @@ namespace AutomaticInvestmentPlan_Comm
         private static readonly Dictionary<string, string> FundNameDictionary = new Dictionary<string, string>();
         private static List<SpecifyFundCache> _specifyFundCacheList = new List<SpecifyFundCache>();
         private static readonly Dictionary<string, GeneralPointCache> GeneralPointCacheList = new Dictionary<string, GeneralPointCache>();
+        private static readonly List<string> _strategyFunds = new List<string>();
 
+        public static void AddStrategyFund(string fundId)
+        {
+            if (_strategyFunds.Contains(fundId) == false)
+            {
+                _strategyFunds.Add(fundId);
+            }
+        }
+
+        public static bool CheckWhetherStrategyFund(string fundId)
+        {
+            return _strategyFunds.Contains(fundId);
+        }
 
         public static void RefrshCache()
         {

@@ -42,6 +42,7 @@ namespace AutomaticInvestmentPlan_Network
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("SpecifyFundHistoryJumpService class is constructed");
+            Name = "SpecifyFundHistoryJumpService";
         }
 
         public string ExecuteCrawl(string fundId)

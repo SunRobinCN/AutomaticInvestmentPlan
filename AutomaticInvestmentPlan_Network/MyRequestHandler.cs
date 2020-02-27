@@ -24,7 +24,7 @@ namespace AutomaticInvestmentPlan_Network
                 {
                     string str = System.Text.Encoding.UTF8.GetString(request.PostData.Elements[0].Bytes);
                     FileLog.Info("OnBeforeResourceLoad is invoked with amount " + CacheUtil.BuyAmount, LogType.Info);
-                    if (Convert.ToInt32(CacheUtil.BuyAmount)>300)
+                    if (Convert.ToInt32(CacheUtil.BuyAmount)>1000)
                     {
                         FileLog.Info("Amount is not OK", LogType.Info);
                         return base.OnBeforeResourceLoad(chromiumWebBrowser, browser, frame, request, callback);

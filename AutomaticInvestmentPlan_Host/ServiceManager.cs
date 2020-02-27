@@ -29,13 +29,14 @@ namespace AutomaticInvestmentPlan_Host
         {
             try
             {
-                FileLog.Info("The service is starting", LogType.Info);
+                CombineLog.LogInfo("The service is starting");
+                CacheUtil.AddStrategyFund("160706");
                 Task.Factory.StartNew(() =>
                 {
                     try
                     {
-                        TimeSpan start = new TimeSpan(14, 50, 0);
-                        TimeSpan end = new TimeSpan(14, 51, 0);
+                        TimeSpan start = new TimeSpan(14, 45, 0);
+                        TimeSpan end = new TimeSpan(14, 46, 0);
 
                         while (_signal)
                         {
@@ -46,12 +47,15 @@ namespace AutomaticInvestmentPlan_Host
                                 EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
                                 CacheUtil.RefrshCache();
 
+                                BackupDB();
+
                                 //华宝中证100 240014
                                 //大成中证红利 007801
+                                //嘉实沪深300 160706
                                 DoExecuteBuy("240014");
 
-                                DoExecuteBuy("007801");
-                                DoExecuteSell("007801");
+                                DoExecuteBuy("160706");
+                                DoExecuteSell("160706");
 
                                 string date = DateTime.Now.ToString("yyyy-MM-dd");
                                 StringBuilder body = new StringBuilder();
@@ -171,11 +175,19 @@ namespace AutomaticInvestmentPlan_Host
             }
         }
 
+        private void BackupDB()
+        {
+            string originalPath = "DB\\investment.db";
+            string destinationPath = "DB\\backup\\";
+            string destinationName = DateTime.Now.ToString("yyyy-MM-dd");
+            FileUtil.BackUpFile(originalPath, destinationPath, destinationName);
+        }
+
         public bool Stop(HostControl hostControl)
         {
             try
             {
-                FileLog.Info("The service is stopping", LogType.Info);
+                CombineLog.LogInfo("The service is stopping");
                 _signal = false;
                 DateTime beginTime = DateTime.Now;
                 //communicate with OS and stop the windows service gracefully

@@ -42,6 +42,7 @@ namespace AutomaticInvestmentPlan_Network
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("SpecifyFundNameService class is constructed");
+            Name = "SpecifyFundNameService";
         }
 
         public string ExecuteCrawl(string fundId)

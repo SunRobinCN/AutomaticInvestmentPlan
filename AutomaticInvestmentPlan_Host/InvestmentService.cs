@@ -22,16 +22,24 @@ namespace AutomaticInvestmentPlan_Host
 
         private readonly DbService _dbService = new DbService();
 
+        public InvestmentService()
+        {
+            CombineLog.LogInfo("SpecifyFundNameService class is constructed");
+            Name = "InvestmentService";
+        }
+
         public void ExecuteBuy(string fundId)
         {
             MethodTimeoutMonitor.TimeoutMonitor(this);
             ExecuteBuyTask(fundId);
+            JobDone = true;
         }
 
         public void ExecuteSell(string fundId)
         {
             MethodTimeoutMonitor.TimeoutMonitor(this);
             ExecuteSellTask(fundId);
+            JobDone = true;
         }
 
         private void ExecuteBuyTask(string fundId)
@@ -73,8 +81,7 @@ namespace AutomaticInvestmentPlan_Host
             CacheUtil.AddFundNameInCache(fundId, fundName);
             CacheUtil.GetFundDetailInCache(fundId).EstimationFundValue = estimationValue;
             CacheUtil.GetFundDetailInCache(fundId).EstimationJumpPoint = estimationJump;
-            double investAmount = CalculateUtil.CalculateInvestmentAmountForUpgradStrategy
-                (generalPoint, estimationJump, jumpHistory);
+            double investAmount = CalculateUtil.CalculateInvestmentAmount(fundId, generalPoint, estimationJump, jumpHistory);
             CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
             CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
             var buyResult = RunTaskForBuyFund(fundId, investAmount);

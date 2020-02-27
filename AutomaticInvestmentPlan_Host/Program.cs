@@ -13,6 +13,7 @@ namespace AutomaticInvestmentPlan_Host
     {
         static void Main(string[] args)
         {
+            System.AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
             try
             {
                 // Here is TopShelf to help create windows service and debug it,
@@ -38,27 +39,17 @@ namespace AutomaticInvestmentPlan_Host
             };
         }
 
-        //static void Main(string[] args)
-        //{
-        //    Task<int> t = DoSumAsync(1, 2);
-        //    Console.WriteLine("结果:{0}", t.Result);
-        //    Console.ReadKey();
-        //}
-
-        ////2.异步方法
-        //public static async Task<int> DoSumAsync(int a, int b)
-        //{
-        //    //3.await 表达式
-        //    Console.WriteLine("a");
-        //    Thread.Sleep(2000);
-        //    Console.WriteLine("1");
-        //    int sum = await Task.Run(() =>
-        //    {
-        //        Console.WriteLine("f");
-        //        return a + b;
-        //    });
-        //    Console.WriteLine("b");
-        //    return sum;
-        //}
+        static void UnhandledExceptionTrapper(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is CustomTimeoutException)
+            {
+                CustomTimeoutException customTimeoutException = (CustomTimeoutException) e.ExceptionObject;
+                CombineLog.LogError("UnhandledExceptionTrapper " + customTimeoutException.Info, customTimeoutException);
+            }
+            else
+            {
+                CombineLog.LogError("UnhandledExceptionTrapper ", (Exception)e.ExceptionObject);
+            }
+        }
     }
 }
