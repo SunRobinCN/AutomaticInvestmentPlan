@@ -53,14 +53,15 @@ namespace AutomaticInvestmentPlan_Host
                                 //大成中证红利 007801
                                 //嘉实沪深300 160706
                                 DoExecuteBuy("240014");
-
+                                Thread.Sleep(1000 * 60 * 2);
                                 DoExecuteBuy("160706");
+                                Thread.Sleep(1000 * 60 * 2);
                                 DoExecuteSell("160706");
 
                                 string date = DateTime.Now.ToString("yyyy-MM-dd");
                                 StringBuilder body = new StringBuilder();
-                                body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date)}\r\n" +
-                                            $"今日上证涨跌{CacheUtil.GetGeneralPointInCache(date)}\r\n\r\n");
+                                body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date).GeneralPoint}\r\n" +
+                                            $"今日上证涨跌{" " + CacheUtil.GetGeneralPointInCache(date).GeneralPointJump}\r\n\r\n");
                                     
                                 foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
                                 {
@@ -70,12 +71,18 @@ namespace AutomaticInvestmentPlan_Host
                                         builder.Append(d * 100 + "%  ");
                                     }
 
+                                    string sellShare = string.IsNullOrEmpty(specifyFundCache.SellShareAmount)
+                                        ? "0"
+                                        : specifyFundCache.SellShareAmount;
+                                    string sellResult = string.IsNullOrEmpty(specifyFundCache.SellResult)
+                                        ? "0"
+                                        : specifyFundCache.SellResult;
                                     body.Append(
-                                        $"{specifyFundCache.Name}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPoint * 100}%\r\n" +
+                                        $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
                                         $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
                                         $"今日本期定投结果为{specifyFundCache.BuyResult}\r\n" +
-                                        $"今日本期卖出份额为{specifyFundCache.SellShareAmount}\r\n" +
-                                        $"今日本期卖出结果为{specifyFundCache.SellResult}");
+                                        $"今日本期卖出份额为{sellShare}\r\n" +
+                                        $"今日本期卖出结果为{sellResult}");
 
                                     body.Append("\r\n");
                                 }
@@ -116,10 +123,12 @@ namespace AutomaticInvestmentPlan_Host
             {
                 if (_dbService.SelectBuyResultByDate(fundId, DateTime.Now.ToString("yyyy-MM-dd")) != null)
                 {
+                    CombineLog.LogInfo(fundId + " already executed");
                     break;
                 }
                 if (count++ > 2)
                 {
+                    CombineLog.LogInfo(fundId + " more than twice, skip");
                     break;
                 }
 
@@ -144,34 +153,20 @@ namespace AutomaticInvestmentPlan_Host
 
         private void DoExecuteSell(string fundId)
         {
-            int count = 0;
-            bool signal = true;
-            while (signal)
-            {
-                if (_dbService.SelectSellResultByDate(fundId, DateTime.Now.ToString("yyyy-MM-dd")) != null)
-                {
-                    break;
-                }
-                if (count++ > 2)
-                {
-                    break;
-                }
 
-                InvestmentService investmentService = new InvestmentService();
-                try
-                {
-                    CombineLog.LogInfo("Start to execute sell " + fundId + " count " + count);
-                    investmentService.ExecuteSell(fundId);
-                    signal = false;
-                }
-                catch (Exception e)
-                {
-                    CombineLog.LogError("DoExecuteSell", e);
-                }
-                finally
-                {
-                    investmentService.Dispose();
-                }
+            InvestmentService investmentService = new InvestmentService();
+            try
+            {
+                CombineLog.LogInfo("Start to execute sell " + fundId);
+                investmentService.ExecuteSell(fundId);
+            }
+            catch (Exception e)
+            {
+                CombineLog.LogError("DoExecuteSell", e);
+            }
+            finally
+            {
+                investmentService.Dispose();
             }
         }
 

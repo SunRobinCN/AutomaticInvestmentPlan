@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using AutomaticInvestmentPlan_Comm;
 using CefSharp;
 using CefSharp.Handler;
 
-namespace AutomaticInvestmentPlan_Network
+namespace AutomaticInvestmentPlan_Network.WebHandler
 {
     public class MyRequestHandler : RequestHandler
     {
@@ -36,6 +36,29 @@ namespace AutomaticInvestmentPlan_Network
             }
 
             return base.OnBeforeResourceLoad(chromiumWebBrowser, browser, frame, request, callback);
+        }
+
+        protected override IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request,
+            IResponse response)
+        {
+            try
+            {
+                if (request.Url.Contains("fund.eastmoney.com"))
+                {
+                    Dictionary<string, string> dictionary = new Dictionary<string, string>
+                    {
+                        {
+                            "</body>",
+                            "<script src=\"https://libs.baidu.com/jquery/1.10.2/jquery.min.js\"></script></body>"
+                        }
+                    };
+                    return new FindReplaceResponseFilter(dictionary);
+                }
+            }
+            catch (Exception e)
+            {
+            }
+            return null;
         }
     }
 }

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using AutomaticInvestmentPlan_Comm;
 using Topshelf;
 
@@ -41,9 +36,8 @@ namespace AutomaticInvestmentPlan_Host
 
         static void UnhandledExceptionTrapper(object sender, UnhandledExceptionEventArgs e)
         {
-            if (e.ExceptionObject is CustomTimeoutException)
+            if (e.ExceptionObject is CustomTimeoutException customTimeoutException)
             {
-                CustomTimeoutException customTimeoutException = (CustomTimeoutException) e.ExceptionObject;
                 CombineLog.LogError("UnhandledExceptionTrapper " + customTimeoutException.Info, customTimeoutException);
             }
             else

@@ -71,11 +71,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JSHandler.cs" />
+    <Compile Include="WebHandler\JSHandler.cs" />
     <Compile Include="SpecifyFundSellService.cs" />
     <Compile Include="SpecifyFundBuyService.cs" />
-    <Compile Include="CookieVisitor.cs" />
-    <Compile Include="FindReplaceResponseFilter.cs" />
+    <Compile Include="WebHandler\CookieVisitor.cs" />
+    <Compile Include="WebHandler\FindReplaceResponseFilter.cs" />
     <Compile Include="GeneralPointService.cs" />
     <Compile Include="MountForm.cs">
       <SubType>Form</SubType>
@@ -83,10 +83,8 @@
     <Compile Include="MountForm.Designer.cs">
       <DependentUpon>MountForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MyRequestHandler.cs" />
+    <Compile Include="WebHandler\MyRequestHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpecifyFundNamePointService.cs" />
-    <Compile Include="SpecifyFundHistoryJumpService.cs" />
     <Compile Include="SpecifyFundJumpService.cs" />
     <EmbeddedResource Include="MountForm.resx">
       <DependentUpon>MountForm.cs</DependentUpon>

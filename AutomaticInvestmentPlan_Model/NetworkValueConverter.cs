@@ -29,7 +29,29 @@ namespace AutomaticInvestmentPlan_Model
                 string point = arr[i-1];
                 HistoryPointModel historyPointModel = new HistoryPointModel();
                 historyPointModel.Date = date;
-                historyPointModel.Point = point + "%";
+                historyPointModel.PointJumpPercentage = point + "%";
+                list.Add(historyPointModel);
+            }
+            return list;
+        }
+
+        public static List<HistoryPointModel> ConvertToHistoryPointModel(string dates, string historyJumpPercenage, string historyPointValue)
+        {
+            List<HistoryPointModel> list = new List<HistoryPointModel>();
+            string[] dateArray = dates.Split('^');
+            string[] jumpArray = historyJumpPercenage.Split('^');
+            string[] pointArray = historyPointValue.Split('^');
+            for (int i = 1; i < dateArray.Length && i < 9; i++)
+            {
+                string date = dateArray[i].Trim();
+                string pointJump = jumpArray[i].Trim();
+                string pointValue = pointArray[i].Trim();
+                HistoryPointModel historyPointModel = new HistoryPointModel
+                {
+                    Date = date,
+                    PointJumpPercentage = pointJump,
+                    PointValue = Convert.ToDouble(pointValue)
+                };
                 list.Add(historyPointModel);
             }
             return list;

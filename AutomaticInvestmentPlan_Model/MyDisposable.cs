@@ -2,7 +2,7 @@
 
 namespace AutomaticInvestmentPlan_Model
 {
-    public class MyDisposable : IDisposable
+    public class MyDisposable
     {
         public bool JobDone = false;
         public string Name;

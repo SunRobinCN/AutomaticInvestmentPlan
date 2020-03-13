@@ -14,7 +14,7 @@ namespace AutomaticInvestmentPlan_Comm
         public string Name;
         public List<double> SpecifyPointJumpHistory;
         public double EstimationFundValue;
-        public double EstimationJumpPoint;
+        public double EstimationJumpPercentage;
         public string BuyAmount;
         public string BuyResult;
         public string SellShareAmount;
@@ -60,7 +60,10 @@ namespace AutomaticInvestmentPlan_Comm
 
         public static void AddFundNameInCache(string fundId, string fundName)
         {
-            FundNameDictionary.Add(fundId, fundName);
+            if (FundNameDictionary.ContainsKey(fundId) == false)
+            {
+                FundNameDictionary.Add(fundId, fundName);
+            }
         }
 
         public static string GetFundNameInCache(string fundId)

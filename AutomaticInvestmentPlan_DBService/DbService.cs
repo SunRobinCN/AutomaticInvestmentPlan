@@ -85,7 +85,7 @@ namespace AutomaticInvestmentPlan_DBService
                     using (SQLiteCommand cmd = new SQLiteCommand
                     {
                         Connection = cn,
-                        CommandText = $"select * from t_history where 基金代码='{fundId}' and 卖出日期='{sellDate}';"
+                        CommandText = $"select * from t_history where 基金代码='{fundId}' and 卖出日期='{sellDate}' and 当日买入金额 > 0 ;"
                     })
                     {
                         using (SQLiteDataReader sr = cmd.ExecuteReader())

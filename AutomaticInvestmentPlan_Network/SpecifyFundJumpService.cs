@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomaticInvestmentPlan_Comm;
 using AutomaticInvestmentPlan_Model;
+using AutomaticInvestmentPlan_Network.WebHandler;
 using CefSharp;
 using CefSharp.WinForms;
 
@@ -39,6 +40,7 @@ namespace AutomaticInvestmentPlan_Network
             _browser.LoadError += OnLoadError;
             _browser.ConsoleMessage += OnConsoleMessage;
             _browser.JsDialogHandler = new JsDialogHandler();
+            _browser.RequestHandler = new MyRequestHandler();
             Control.CheckForIllegalCrossThreadCalls = false;
 
             CombineLog.LogInfo("SpecifyFundJumpService class is constructed");
@@ -99,9 +101,10 @@ namespace AutomaticInvestmentPlan_Network
                     {
                         Thread.Sleep(1000*30);
                         List<Task> tasks = new List<Task>();
-                        //string jscript1 = "document.getElementById(\'gz_gszzl\').innerText;";
+                        //string jscript1 =
+                        //    "document.getElementById(\'gz_gszzl\').innerText + \'|\' + document.getElementById(\'gz_gsz\').innerText";
                         string jscript1 =
-                            "document.getElementById(\'gz_gszzl\').innerText + \'|\' + document.getElementById(\'gz_gsz\').innerText";
+                            "var dates = [];var historys = [];var points = [];$(\'#Li1 tr\').each(function(i){                        $(this).children(\'td\').each(function(j){          if(j == 0) {            dates.push($(this).text());        }        if(j == 2) {            points.push($(this).text());        }        if(j == 3) {            historys.push($(this).text());        }      });});var combinedDates=\'\';var combinedHistory =\'\';var combinedPoints =\'\';$.each(dates,function(index,value){     combinedDates = combinedDates + \'^\' +value;});$.each(historys,function(index,value){     combinedHistory = combinedHistory + \'^\' +value;});$.each(points,function(index,value){     combinedPoints = combinedPoints + \'^\' +value;});var result = $(\'#gz_gszze\').text() + \"@\" + $(\'#gz_gszzl\').text() + \"@\" + combinedDates + \"@\" + combinedHistory + \"@\" + combinedPoints + \"@\" + $(\'.fundDetail-tit > div\').text();console.log(result);result;";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
                         tasks.Add(task1);
                         Task.WaitAll(tasks.ToArray());

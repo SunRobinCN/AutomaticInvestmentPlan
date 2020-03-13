@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using CefSharp;
 
-namespace AutomaticInvestmentPlan_Network
+namespace AutomaticInvestmentPlan_Network.WebHandler
 {
     public class CookieVisitor : ICookieVisitor
     {

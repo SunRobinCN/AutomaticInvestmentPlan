@@ -59,7 +59,7 @@ namespace AutomaticInvestmentPlan_Form
         private void btnStart_Click(object sender, EventArgs e)
         {
             //double r = CalculateUtil.CalculateInvestmentAmount(CacheUtil.GeneralPoint,
-            //    SpecifyFundCache.EstimationJumpPoint, SpecifyFundCache.SpecifyPointJumpHistory);
+            //    SpecifyFundCache.EstimationJumpPercentage, SpecifyFundCache.SpecifyPointJumpHistory);
             //this.txtEstimateInvestAmount.Text = Convert.ToString(Math.Round(r), CultureInfo.InvariantCulture);
         }
 
@@ -113,7 +113,7 @@ namespace AutomaticInvestmentPlan_Form
                 this.labGeneralPoint.Text = m.Point;
                 this.labGeneralPointPercentage.Text = m.Percentate;
 
-                //GeneralPointCache.GeneralPoint = Convert.ToDouble(m.Point);
+                //GeneralPointCache.GeneralPoint = Convert.ToDouble(m.PointJumpPercentage);
             });
             _tasks.Add(t1);
 
@@ -122,7 +122,7 @@ namespace AutomaticInvestmentPlan_Form
                 string fundId = this.txtFundCode.Text.Trim();
                 string p = _specifyFundPointService.ExecuteCrawl(fundId);
                 this.txtEstimatedPoint.Text = p;
-                //SpecifyFundCache.EstimationJumpPoint = Convert.ToDouble(p.Substring(0, p.Length - 1)) / 100;
+                //SpecifyFundCache.EstimationJumpPercentage = Convert.ToDouble(p.Substring(0, p.Length - 1)) / 100;
             });
             _tasks.Add(t2);
 
@@ -152,7 +152,7 @@ namespace AutomaticInvestmentPlan_Form
                 //    if (count++ < 2)
                 //    {
                 //        SpecifyFundCache.SpecifyPointJumpHistory.Add
-                //            (Convert.ToDouble(historyPointModel.Point.Substring(0, historyPointModel.Point.Length - 1)) / 100);
+                //            (Convert.ToDouble(historyPointModel.PointJumpPercentage.Substring(0, historyPointModel.PointJumpPercentage.Length - 1)) / 100);
                 //    }
                 //}
             });

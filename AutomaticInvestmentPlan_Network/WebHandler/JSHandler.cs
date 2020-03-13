@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CefSharp;
+﻿using CefSharp;
 
-namespace AutomaticInvestmentPlan_Network
+namespace AutomaticInvestmentPlan_Network.WebHandler
 {
     public class JsDialogHandler : IJsDialogHandler
     {
