@@ -13,6 +13,7 @@ namespace AutomaticInvestmentPlan_Comm
         public string FundId;
         public string Name;
         public List<double> SpecifyPointJumpHistory;
+        public List<double> AcculatedPointHistory;
         public double EstimationFundValue;
         public double EstimationJumpPercentage;
         public string BuyAmount;
@@ -30,26 +31,32 @@ namespace AutomaticInvestmentPlan_Comm
 
     public static class CacheUtil
     {
-        public static double IncreasePercentage = 0.05;
+        public static List<string> EftList = new List<string>()
+        {
+            "515030"
+        };
+
+        public static double MinIncreasePercentage = 0.1;
+        public static double MaxIncreasePercentage = 0.3;
 
         public static string BuyAmount;
 
         private static readonly Dictionary<string, string> FundNameDictionary = new Dictionary<string, string>();
         private static List<SpecifyFundCache> _specifyFundCacheList = new List<SpecifyFundCache>();
         private static readonly Dictionary<string, GeneralPointCache> GeneralPointCacheList = new Dictionary<string, GeneralPointCache>();
-        private static readonly List<string> _strategyFunds = new List<string>();
+        private static readonly List<string> StrategyFunds = new List<string>();
 
         public static void AddStrategyFund(string fundId)
         {
-            if (_strategyFunds.Contains(fundId) == false)
+            if (StrategyFunds.Contains(fundId) == false)
             {
-                _strategyFunds.Add(fundId);
+                StrategyFunds.Add(fundId);
             }
         }
 
         public static bool CheckWhetherStrategyFund(string fundId)
         {
-            return _strategyFunds.Contains(fundId);
+            return StrategyFunds.Contains(fundId);
         }
 
         public static void RefrshCache()
@@ -86,8 +93,7 @@ namespace AutomaticInvestmentPlan_Comm
             }
             else
             {
-                SpecifyFundCache specifyFundCache = new SpecifyFundCache();
-                specifyFundCache.FundId = fundId;
+                SpecifyFundCache specifyFundCache = new SpecifyFundCache {FundId = fundId};
                 _specifyFundCacheList.Add(specifyFundCache);
                 return specifyFundCache;
             }

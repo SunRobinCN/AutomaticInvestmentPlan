@@ -40,54 +40,42 @@ namespace AutomaticInvestmentPlan_Host
             JobDone = true;
         }
 
-        private void ExecuteBuyTask(string fundId)
+        public void ExecuteBuyEefTask(string fundId)
         {
-            GeneralPointModel generalPointModel = null;
+            CombinedResult calculateResult = ExecuteCalculateTask(fundId);
+            string fundName = calculateResult.FundName;
+            GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
             double generalPoint = 0;
-            string fundName = null;
             double estimationJumpPercentage = 0;
             double estimationValue = 0;
-            List<double> jumpHistory = new List<double>();
-            Task t1 = Task.Factory.StartNew(() =>
+            double investAmount = calculateResult.InvestAmount;
+            CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
+            CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
+            CombineLog.LogInfo($"Buy {fundId} {fundName} is notified. Start to write database");
+            HistoryModel historyModel = new HistoryModel
             {
-                generalPointModel = RunTaskForGetGeneralPoint();
-                generalPoint = Convert.ToDouble(generalPointModel.Point);
-            });
-            Task t3 = Task.Factory.StartNew(() =>
-            {
-                string r = RunTaskForGetFundEstimationJump(fundId);
-                string todayJumpPoint = r.Split('@')[0].Trim();
-                string todayJumpPercentage = r.Split('@')[1].Trim();
-                string historyDate = r.Split('@')[2];
-                string historyJumpPercentage = r.Split('@')[3];
-                string historyPointValue = r.Split('@')[4];
-                string name = r.Split('@')[5];
-                fundName = name;
-                List<HistoryPointModel> list = NetworkValueConverter.
-                    ConvertToHistoryPointModel(historyDate, historyJumpPercentage, historyPointValue);
-
-                estimationJumpPercentage = Convert.ToDouble(todayJumpPercentage.Substring(0, todayJumpPercentage.Length-2)) /100;
-                estimationValue = list[0].PointValue + Convert.ToDouble(todayJumpPoint);
-
-                foreach (HistoryPointModel historyPointModel in list)
-                {
-                    jumpHistory.Add(Convert.ToDouble(historyPointModel.PointJumpPercentage.Substring(0, historyPointModel.PointJumpPercentage.Length-2))/100);
-                }
-            });
-
-            CombineLog.LogInfo("Start to wait for all the tasks to be done");
-            List<Task> tasks = new List<Task>()
-            {
-                t1,t3
+                FundId = fundId,
+                BuyDate = DateTime.Now,
+                FundName = fundName,
+                ShangHaiIndex = generalPoint,
+                ShangHaiIndexJumpPercentage = generalPointModel.Percentate,
+                FundValue = estimationValue,
+                FundValueJumpPercentage = estimationJumpPercentage,
+                BuyAmount = investAmount
             };
-            Task.WaitAll(tasks.ToArray());
-            CombineLog.LogInfo("All the tasks are done");
-            CacheUtil.GetFundDetailInCache(fundId).EstimationFundValue = estimationValue;
-            CacheUtil.GetFundDetailInCache(fundId).EstimationJumpPercentage = estimationJumpPercentage;
-            CacheUtil.GetFundDetailInCache(fundId).Name = fundName;
-            CacheUtil.GetFundDetailInCache(fundId).SpecifyPointJumpHistory = jumpHistory;
-            CacheUtil.AddFundNameInCache(fundId, fundName);
-            double investAmount = CalculateUtil.CalculateInvestmentAmount(fundId, generalPoint, estimationJumpPercentage, jumpHistory);
+            _dbService.InsertBuyResult(historyModel);
+            CombineLog.LogInfo($"Buy {fundId} {fundName} done");
+        }
+
+        private void ExecuteBuyTask(string fundId)
+        {
+            CombinedResult calculateResult = ExecuteCalculateTask(fundId);
+            string fundName = calculateResult.FundName;
+            GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
+            double generalPoint = 0;
+            double estimationJumpPercentage = 0;
+            double estimationValue = 0;
+            double investAmount = calculateResult.InvestAmount;
             CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
             CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
             var buyResult = RunTaskForBuyFund(fundId, investAmount);
@@ -111,16 +99,78 @@ namespace AutomaticInvestmentPlan_Host
             CombineLog.LogInfo($"Buy {fundId} {fundName} done");
         }
 
+        private CombinedResult ExecuteCalculateTask(string fundId)
+        {
+            GeneralPointModel generalPointModel = null;
+            double generalPoint = 0;
+            string fundName = null;
+            double estimationJumpPercentage = 0;
+            double estimationValue = 0;
+            List<double> jumpHistory = new List<double>();
+            List<double> accumulatedPointHistory = new List<double>();
+            Task t1 = Task.Factory.StartNew(() =>
+            {
+                generalPointModel = RunTaskForGetGeneralPoint();
+                generalPoint = Convert.ToDouble(generalPointModel.Point);
+            });
+            Task t3 = Task.Factory.StartNew(() =>
+            {
+                string r = RunTaskForGetFundEstimationJump(fundId);
+                string todayJumpPoint = r.Split('@')[0].Trim();
+                string todayJumpPercentage = r.Split('@')[1].Trim();
+                string historyDate = r.Split('@')[2];
+                string historyJumpPercentage = r.Split('@')[3];
+                string historyPointValue = r.Split('@')[4];
+                string name = r.Split('@')[5];
+                fundName = name;
+                List<HistoryPointModel> list = NetworkValueConverter.
+                    ConvertToHistoryPointModel(historyDate, historyJumpPercentage, historyPointValue);
+
+                estimationJumpPercentage = Convert.ToDouble(todayJumpPercentage.Substring(0, todayJumpPercentage.Length - 2)) / 100;
+                estimationValue = list[0].PointValue + Convert.ToDouble(todayJumpPoint);
+
+                foreach (HistoryPointModel historyPointModel in list)
+                {
+                    accumulatedPointHistory.Add(historyPointModel.PointValue);
+                    jumpHistory.Add(Convert.ToDouble(historyPointModel.PointJumpPercentage.Substring(0, historyPointModel.PointJumpPercentage.Length - 2)) / 100);
+                }
+            });
+
+            CombineLog.LogInfo("Start to wait for all the tasks to be done");
+            List<Task> tasks = new List<Task>()
+            {
+                t1,t3
+            };
+            Task.WaitAll(tasks.ToArray());
+            CombineLog.LogInfo("All the tasks are done");
+            CacheUtil.GetFundDetailInCache(fundId).EstimationFundValue = estimationValue;
+            CacheUtil.GetFundDetailInCache(fundId).EstimationJumpPercentage = estimationJumpPercentage;
+            CacheUtil.GetFundDetailInCache(fundId).Name = fundName;
+            CacheUtil.GetFundDetailInCache(fundId).AcculatedPointHistory = accumulatedPointHistory;
+            CacheUtil.GetFundDetailInCache(fundId).SpecifyPointJumpHistory = jumpHistory;
+            CacheUtil.AddFundNameInCache(fundId, fundName);
+            double investAmount = CalculateUtil.CalculateInvestmentAmount(fundId, estimationValue, generalPoint, estimationJumpPercentage, jumpHistory, accumulatedPointHistory);
+            CombinedResult result = new CombinedResult
+            {
+                GeneralPoint = generalPointModel,
+                FundName = fundName,
+                EstimationValue = estimationValue,
+                EstimationJumpPercentage = estimationJumpPercentage,
+                InvestAmount = investAmount
+            };
+            return result;
+        }
+
         private void ExecuteSellTask(string fundId)
         {
             string fundName = CacheUtil.GetFundNameInCache(fundId);
             double fundValue = CacheUtil.GetFundDetailInCache(fundId).EstimationFundValue;
+            List<double> accumulatedPointHistory = CacheUtil.GetFundDetailInCache(fundId).AcculatedPointHistory;
             List<HistoryModel> list = _dbService.SelectAllNotSold(fundId);
             List<HistoryModel> sellList = new List<HistoryModel>();
             foreach (HistoryModel historyModel in list)
             {
-                if ((fundValue - historyModel.FundValue) / historyModel.FundValue >
-                    CacheUtil.IncreasePercentage  )
+                if (CalculateUtil.CalculateWhetherSell(historyModel, accumulatedPointHistory, fundValue))
                 {
                     historyModel.FundShare = historyModel.BuyAmount / historyModel.FundValue;
                     CombineLog.LogInfo($"The record with id {historyModel.FundId} will be sold");

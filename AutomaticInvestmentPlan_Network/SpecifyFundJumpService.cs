@@ -104,7 +104,7 @@ namespace AutomaticInvestmentPlan_Network
                         //string jscript1 =
                         //    "document.getElementById(\'gz_gszzl\').innerText + \'|\' + document.getElementById(\'gz_gsz\').innerText";
                         string jscript1 =
-                            "var dates = [];var historys = [];var points = [];$(\'#Li1 tr\').each(function(i){                        $(this).children(\'td\').each(function(j){          if(j == 0) {            dates.push($(this).text());        }        if(j == 2) {            points.push($(this).text());        }        if(j == 3) {            historys.push($(this).text());        }      });});var combinedDates=\'\';var combinedHistory =\'\';var combinedPoints =\'\';$.each(dates,function(index,value){     combinedDates = combinedDates + \'^\' +value;});$.each(historys,function(index,value){     combinedHistory = combinedHistory + \'^\' +value;});$.each(points,function(index,value){     combinedPoints = combinedPoints + \'^\' +value;});var result = $(\'#gz_gszze\').text() + \"@\" + $(\'#gz_gszzl\').text() + \"@\" + combinedDates + \"@\" + combinedHistory + \"@\" + combinedPoints + \"@\" + $(\'.fundDetail-tit > div\').text();console.log(result);result;";
+                            "var dates = [];var historys = [];var points = [];$(\'#Li1 tr\').each(function(i){                        $(this).children(\'td\').each(function(j){          if(j == 0) {            dates.push($(this).text());        }        if(j == 2) {            points.push($(this).text());        }        if(j == 3) {            historys.push($(this).text());        }      });});var combinedDates=\'\';var combinedHistory =\'\';var combinedPoints =\'\';$.each(dates,function(index,value){     combinedDates = combinedDates + \'^\' +value;});$.each(historys,function(index,value){     combinedHistory = combinedHistory + \'^\' +value;});$.each(points,function(index,value){     combinedPoints = combinedPoints + \'^\' +value;});var result = $(\'#gz_gszze\').text() + \"@\" + $(\'#gz_gszzl\').text() + \"@\" + combinedDates + \"@\" + combinedHistory + \"@\" + combinedPoints + \"@\" + $(\'.fundDetail-tit > div\').text();result;";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
                         tasks.Add(task1);
                         Task.WaitAll(tasks.ToArray());
@@ -130,7 +130,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            FileLog.Error("SpecifyFundJumpService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
+            FileLog.Debug("SpecifyFundJumpService.OnConsoleMessage", LogType.Debug);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)

@@ -49,6 +49,10 @@ namespace AutomaticInvestmentPlan_Host
 
                                 BackupDB();
 
+                                //华夏中证新能源汽车ETF(515030)
+                                DoExecuteBuy("515030");
+                                SendOutEftNotificationEmail();
+
                                 //华宝中证100 240014
                                 //大成中证红利 007801
                                 //嘉实沪深300 160706
@@ -58,39 +62,7 @@ namespace AutomaticInvestmentPlan_Host
                                 Thread.Sleep(1000 * 60 * 2);
                                 DoExecuteSell("160706");
 
-                                string date = DateTime.Now.ToString("yyyy-MM-dd");
-                                StringBuilder body = new StringBuilder();
-                                body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date).GeneralPoint}\r\n" +
-                                            $"今日上证涨跌{" " + CacheUtil.GetGeneralPointInCache(date).GeneralPointJump}\r\n\r\n");
-                                    
-                                foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
-                                {
-                                    StringBuilder builder = new StringBuilder();
-                                    foreach (double d in specifyFundCache.SpecifyPointJumpHistory ?? new List<double>())
-                                    {
-                                        builder.Append(d * 100 + "%  ");
-                                    }
-
-                                    string sellShare = string.IsNullOrEmpty(specifyFundCache.SellShareAmount)
-                                        ? "0"
-                                        : specifyFundCache.SellShareAmount;
-                                    string sellResult = string.IsNullOrEmpty(specifyFundCache.SellResult)
-                                        ? "0"
-                                        : specifyFundCache.SellResult;
-                                    body.Append(
-                                        $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
-                                        $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
-                                        $"今日本期定投结果为{specifyFundCache.BuyResult}\r\n" +
-                                        $"今日本期卖出份额为{sellShare}\r\n" +
-                                        $"今日本期卖出结果为{sellResult}");
-
-                                    body.Append("\r\n");
-                                }
-                                EmailUtil.Send(subject, body.ToString());
-                                Console.WriteLine(@"email is sent out");
-                                FileLog.Info("email is sent out", LogType.Info);
-                                Debug.WriteLine("email is sent out");
-
+                                SendOutFinalEmail();
                             }
                             else
                             {
@@ -118,8 +90,7 @@ namespace AutomaticInvestmentPlan_Host
         private void DoExecuteBuy(string fundId)
         {
             int count = 0;
-            bool signal = true;
-            while (signal)
+            while (true)
             {
                 if (_dbService.SelectBuyResultByDate(fundId, DateTime.Now.ToString("yyyy-MM-dd")) != null)
                 {
@@ -136,8 +107,14 @@ namespace AutomaticInvestmentPlan_Host
                 try
                 {
                     CombineLog.LogInfo("Start to execute buy " + fundId + " count " + count);
-                    investmentService.ExecuteBuy(fundId);
-                    signal = false;
+                    if (CheckWheterhEft(fundId))
+                    {
+                        investmentService.ExecuteBuyEefTask(fundId);
+                    }
+                    else
+                    {
+                        investmentService.ExecuteBuy(fundId);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -176,6 +153,91 @@ namespace AutomaticInvestmentPlan_Host
             string destinationPath = "DB\\backup\\";
             string destinationName = DateTime.Now.ToString("yyyy-MM-dd");
             FileUtil.BackUpFile(originalPath, destinationPath, destinationName);
+        }
+
+        private bool CheckWheterhEft(string fundId)
+        {
+            if (CacheUtil.EftList.Contains(fundId))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void SendOutEftNotificationEmail()
+        {
+            string subject = "Investment Reminder-Etf";
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            StringBuilder body = new StringBuilder();
+            body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date).GeneralPoint}\r\n" +
+                        $"今日上证涨跌{" " + CacheUtil.GetGeneralPointInCache(date).GeneralPointJump}\r\n\r\n");
+
+            foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
+            {
+                if (CheckWheterhEft(specifyFundCache.FundId))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    foreach (double d in specifyFundCache.SpecifyPointJumpHistory ?? new List<double>())
+                    {
+                        builder.Append(d * 100 + "%  ");
+                    }
+
+                    string sellShare = string.IsNullOrEmpty(specifyFundCache.SellShareAmount)
+                        ? "0"
+                        : specifyFundCache.SellShareAmount;
+                    string sellResult = string.IsNullOrEmpty(specifyFundCache.SellResult)
+                        ? "0"
+                        : specifyFundCache.SellResult;
+                    body.Append(
+                        $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
+                        $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
+                        $"今日本期定投结果为{specifyFundCache.BuyResult}\r\n" +
+                        $"今日本期卖出份额为{sellShare}\r\n" +
+                        $"今日本期卖出结果为{sellResult}");
+
+                    body.Append("\r\n");
+                }
+            }
+            EmailUtil.Send(subject, body.ToString());
+            CombineLog.LogInfo("eft notification email is sent out");
+        }
+
+        private void SendOutFinalEmail()
+        {
+            string subject = "Investment Reminder";
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            StringBuilder body = new StringBuilder();
+            body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date).GeneralPoint}\r\n" +
+                        $"今日上证涨跌{" " + CacheUtil.GetGeneralPointInCache(date).GeneralPointJump}\r\n\r\n");
+
+            foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
+            {
+                if (CheckWheterhEft(specifyFundCache.FundId) == false)
+                {
+                    StringBuilder builder = new StringBuilder();
+                    foreach (double d in specifyFundCache.SpecifyPointJumpHistory ?? new List<double>())
+                    {
+                        builder.Append(d * 100 + "%  ");
+                    }
+
+                    string sellShare = string.IsNullOrEmpty(specifyFundCache.SellShareAmount)
+                        ? "0"
+                        : specifyFundCache.SellShareAmount;
+                    string sellResult = string.IsNullOrEmpty(specifyFundCache.SellResult)
+                        ? "0"
+                        : specifyFundCache.SellResult;
+                    body.Append(
+                        $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
+                        $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
+                        $"今日本期定投结果为{specifyFundCache.BuyResult}\r\n" +
+                        $"今日本期卖出份额为{sellShare}\r\n" +
+                        $"今日本期卖出结果为{sellResult}");
+
+                    body.Append("\r\n");
+                }
+                EmailUtil.Send(subject, body.ToString());
+                CombineLog.LogInfo("final email is sent out");
+            }
         }
 
         public bool Stop(HostControl hostControl)
