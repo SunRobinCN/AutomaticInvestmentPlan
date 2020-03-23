@@ -185,25 +185,36 @@ namespace AutomaticInvestmentPlan_Host
             int sellShareAmount = Convert.ToInt32(sellList.Sum(t => t.FundShare));
             CacheUtil.GetFundDetailInCache(fundId).SellShareAmount = sellShareAmount.ToString();
             CombineLog.LogInfo($"fund {fundId} total share amount is {sellShareAmount}");
+            if (CacheUtil.EftList.Contains(fundId))
+            {
+                WriteResultInDb(fundId, "", sellShareAmount, sellList, fundValue);
+                return;
+            }
+
             var sellResult = RunTaskForSellFund(fundId, sellShareAmount);
             if (string.IsNullOrEmpty(sellResult) == false)
             {
-                CacheUtil.GetFundDetailInCache(fundId).SellResult = sellResult;
-                CombineLog.LogInfo($"Sell {fundId} {sellShareAmount} is OK. Start to write database");
-
-                foreach (HistoryModel model in sellList)
-                {
-                    model.AlreaySold = 1;
-                    model.FundValueInSell = fundValue;
-                    model.SellDate = DateTime.Now;
-                    model.SellAmount = Math.Round(model.FundValueInSell * model.FundShare, 2);
-                    model.Profit = Math.Round(model.SellAmount - model.BuyAmount, 2);
-                    model.ProfitPercentage = Math.Round(model.Profit / model.BuyAmount, 2);
-                    _dbService.UpdateSellResult(model);
-                }
+                WriteResultInDb(fundId, sellResult, sellShareAmount, sellList, fundValue);
             }
             CombineLog.LogInfo($"Sell {fundId} {fundName} down");
 
+        }
+
+        private void WriteResultInDb(string fundId, string sellResult, int sellShareAmount, List<HistoryModel> sellList, double fundValue)
+        {
+            CacheUtil.GetFundDetailInCache(fundId).SellResult = sellResult;
+            CombineLog.LogInfo($"Sell {fundId} {sellShareAmount} is OK. Start to write database");
+
+            foreach (HistoryModel model in sellList)
+            {
+                model.AlreaySold = 1;
+                model.FundValueInSell = fundValue;
+                model.SellDate = DateTime.Now;
+                model.SellAmount = Math.Round(model.FundValueInSell * model.FundShare, 2);
+                model.Profit = Math.Round(model.SellAmount - model.BuyAmount, 2);
+                model.ProfitPercentage = Math.Round(model.Profit / model.BuyAmount, 2);
+                _dbService.UpdateSellResult(model);
+            }
         }
 
 

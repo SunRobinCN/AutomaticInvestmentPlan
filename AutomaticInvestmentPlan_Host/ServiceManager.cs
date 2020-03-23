@@ -51,6 +51,7 @@ namespace AutomaticInvestmentPlan_Host
 
                                 //华夏中证新能源汽车ETF(515030)
                                 DoExecuteBuy("515030");
+                                DoExecuteSell("515030");
                                 SendOutEftNotificationEmail();
 
                                 //华宝中证100 240014
@@ -191,7 +192,6 @@ namespace AutomaticInvestmentPlan_Host
                     body.Append(
                         $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
                         $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
-                        $"今日本期定投结果为{specifyFundCache.BuyResult}\r\n" +
                         $"今日本期卖出份额为{sellShare}\r\n" +
                         $"今日本期卖出结果为{sellResult}");
 

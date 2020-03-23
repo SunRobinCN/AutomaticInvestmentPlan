@@ -11,9 +11,9 @@ namespace AutomaticInvestmentPlan_Comm
         {
             if (CacheUtil.CheckWhetherStrategyFund(fundId) == false)
             {
-                return CalculateInvestmentAmountForNormal(genralPoint, todayFundValue, estimatedJump, jumpHistory, accumulatedPointHistory);
+                return CalculateInvestmentAmountForNormal(genralPoint, todayFundValue, estimatedJump, jumpHistory, accumulatedPointHistory) * 0.3;
             }
-            return CalculateInvestmentAmountForUpgradStrategy(genralPoint, todayFundValue, estimatedJump, jumpHistory, accumulatedPointHistory);
+            return CalculateInvestmentAmountForUpgradStrategy(genralPoint, todayFundValue, estimatedJump, jumpHistory, accumulatedPointHistory) * 0.3;
         }
 
 
