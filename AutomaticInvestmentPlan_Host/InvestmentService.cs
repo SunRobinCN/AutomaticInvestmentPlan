@@ -42,12 +42,13 @@ namespace AutomaticInvestmentPlan_Host
 
         public void ExecuteBuyEefTask(string fundId)
         {
+            CombineLog.LogInfo("Start to execute " + fundId);
             CombinedResult calculateResult = ExecuteCalculateTask(fundId);
             string fundName = calculateResult.FundName;
             GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
-            double generalPoint = 0;
-            double estimationJumpPercentage = 0;
-            double estimationValue = 0;
+            double generalPoint = Convert.ToDouble(generalPointModel.Point);
+            double estimationJumpPercentage = calculateResult.EstimationJumpPercentage;
+            double estimationValue = calculateResult.EstimationValue;
             double investAmount = calculateResult.InvestAmount;
             CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
             CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
@@ -69,12 +70,13 @@ namespace AutomaticInvestmentPlan_Host
 
         private void ExecuteBuyTask(string fundId)
         {
+            CombineLog.LogInfo("Start to execute " + fundId);
             CombinedResult calculateResult = ExecuteCalculateTask(fundId);
             string fundName = calculateResult.FundName;
             GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
-            double generalPoint = 0;
-            double estimationJumpPercentage = 0;
-            double estimationValue = 0;
+            double generalPoint = Convert.ToDouble(generalPointModel.Point);
+            double estimationJumpPercentage = calculateResult.EstimationJumpPercentage;
+            double estimationValue = calculateResult.EstimationValue;
             double investAmount = calculateResult.InvestAmount;
             CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
             CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
