@@ -49,9 +49,9 @@ namespace AutomaticInvestmentPlan_Host
                                 BackupDB();
 
                                 //华夏中证新能源汽车ETF(515030)
-                                DoExecuteBuy("515030");
-                                DoExecuteSell("515030");
-                                SendOutEftNotificationEmail();
+                                //DoExecuteBuy("515030");
+                                //DoExecuteSell("515030");
+                                //SendOutEftNotificationEmail();
 
                                 //华宝中证100 240014
                                 //大成中证红利 007801
