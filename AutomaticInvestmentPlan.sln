@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticInvestmentPlan_Log
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticInvestmentPlan_DBService", "AutomaticInvestmentPlan_DBService\AutomaticInvestmentPlan_DBService.csproj", "{D6715885-016C-480F-B086-9222436591AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticInvestmentPlan_ImageProcess", "AutomaticInvestmentPlan_ImageProcess\AutomaticInvestmentPlan_ImageProcess.csproj", "{D315D171-A37A-43BF-BE5C-42C22B1A659B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,14 +71,6 @@ Global
 		{D6715885-016C-480F-B086-9222436591AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6715885-016C-480F-B086-9222436591AA}.Release|x64.ActiveCfg = Release|Any CPU
 		{D6715885-016C-480F-B086-9222436591AA}.Release|x64.Build.0 = Release|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Debug|x64.Build.0 = Debug|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Release|x64.ActiveCfg = Release|Any CPU
-		{D315D171-A37A-43BF-BE5C-42C22B1A659B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
