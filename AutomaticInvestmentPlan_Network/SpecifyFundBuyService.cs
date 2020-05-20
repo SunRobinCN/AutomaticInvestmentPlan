@@ -139,6 +139,18 @@ namespace AutomaticInvestmentPlan_Network
                         CombineLog.LogInfo("purchage page loaded");
                         Thread.Sleep(1000 * 5);
 
+                        string jscript0 = "$(\'.change-icon\').click();";
+                        Task t0 = browser.EvaluateScriptAsync(jscript0);
+                        Task.WaitAll(new Task[] { t0 });
+                        CombineLog.LogInfo("channel is selected");
+                        Thread.Sleep(1000 * 3);
+
+                        string jscript00 = "$(\'input[name=\"招商银行(6085)\"]\').click();";
+                        Task t00 = browser.EvaluateScriptAsync(jscript00);
+                        Task.WaitAll(new Task[] { t00 });
+                        CombineLog.LogInfo("channel is clicked");
+                        Thread.Sleep(1000 * 3);
+
                         string jscript1 = $"$(\'input[Name=\"amount\"]\').val({_amount});";
                         Task t1 = browser.EvaluateScriptAsync(jscript1);
                         Task.WaitAll(new Task[] { t1 });
