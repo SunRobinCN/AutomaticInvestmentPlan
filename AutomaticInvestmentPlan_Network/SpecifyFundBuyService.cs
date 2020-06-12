@@ -187,7 +187,7 @@ namespace AutomaticInvestmentPlan_Network
 
                         Thread.Sleep(1000 * 15);
                         CombineLog.LogInfo("purchase is ok");
-                        string j = "$(\"span:contains(\'￥\')\").parent().text();";
+                        string j = "$.trim($(\"h1:contains(\'元\')\").text());";
                         CombineLog.LogInfo("trying to get result info");
                         Task<CefSharp.JavascriptResponse> t11 = browser.EvaluateScriptAsync(j);
                         Task.WaitAll(new Task[] { t11 });

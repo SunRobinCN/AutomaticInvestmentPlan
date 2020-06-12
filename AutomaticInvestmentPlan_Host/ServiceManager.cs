@@ -107,14 +107,7 @@ namespace AutomaticInvestmentPlan_Host
                 try
                 {
                     CombineLog.LogInfo("Start to execute buy " + fundId + " count " + count);
-                    if (CheckWheterhEft(fundId))
-                    {
-                        investmentService.ExecuteBuyEefTask(fundId);
-                    }
-                    else
-                    {
-                        investmentService.ExecuteBuy(fundId);
-                    }
+                    investmentService.ExecuteBuy(fundId);
                 }
                 catch (Exception e)
                 {
@@ -155,52 +148,6 @@ namespace AutomaticInvestmentPlan_Host
             FileUtil.BackUpFile(originalPath, destinationPath, destinationName);
         }
 
-        private bool CheckWheterhEft(string fundId)
-        {
-            if (CacheUtil.EftList.Contains(fundId))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private void SendOutEftNotificationEmail()
-        {
-            string subject = "Investment Reminder-Etf";
-            string date = DateTime.Now.ToString("yyyy-MM-dd");
-            StringBuilder body = new StringBuilder();
-            body.Append($"今日上证指数{CacheUtil.GetGeneralPointInCache(date).GeneralPoint}\r\n" +
-                        $"今日上证涨跌{" " + CacheUtil.GetGeneralPointInCache(date).GeneralPointJump}\r\n\r\n");
-
-            foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
-            {
-                if (CheckWheterhEft(specifyFundCache.FundId))
-                {
-                    StringBuilder builder = new StringBuilder();
-                    foreach (double d in specifyFundCache.SpecifyPointJumpHistory ?? new List<double>())
-                    {
-                        builder.Append(d * 100 + "%  ");
-                    }
-
-                    string sellShare = string.IsNullOrEmpty(specifyFundCache.SellShareAmount)
-                        ? "0"
-                        : specifyFundCache.SellShareAmount;
-                    string sellResult = string.IsNullOrEmpty(specifyFundCache.SellResult)
-                        ? "0"
-                        : specifyFundCache.SellResult;
-                    body.Append(
-                        $"\r\n\r\n{specifyFundCache.Name + ")"}\r\n今日本基金预估涨跌{specifyFundCache.EstimationJumpPercentage * 100}%\r\n" +
-                        $"今日本期定投金额为{specifyFundCache.BuyAmount}\r\n本基金历史业绩{builder}\r\n" +
-                        $"今日本期卖出份额为{sellShare}\r\n" +
-                        $"今日本期卖出结果为{sellResult}");
-
-                    body.Append("\r\n");
-                }
-            }
-            EmailUtil.Send(subject, body.ToString());
-            CombineLog.LogInfo("eft notification email is sent out");
-        }
-
         private void SendOutFinalEmail()
         {
             string subject = "Investment Reminder";
@@ -211,11 +158,6 @@ namespace AutomaticInvestmentPlan_Host
 
             foreach (SpecifyFundCache specifyFundCache in CacheUtil.GetAllCaches())
             {
-                if (CheckWheterhEft(specifyFundCache.FundId))
-                {
-                    continue;
-                }
-
                 StringBuilder builder = new StringBuilder();
                 foreach (double d in specifyFundCache.SpecifyPointJumpHistory ?? new List<double>())
                 {
