@@ -40,34 +40,6 @@ namespace AutomaticInvestmentPlan_Host
             JobDone = true;
         }
 
-        public void ExecuteBuyEefTask(string fundId)
-        {
-            CombineLog.LogInfo("Start to execute " + fundId);
-            CombinedResult calculateResult = ExecuteCalculateTask(fundId);
-            string fundName = calculateResult.FundName;
-            GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
-            double generalPoint = Convert.ToDouble(generalPointModel.Point);
-            double estimationJumpPercentage = calculateResult.EstimationJumpPercentage;
-            double estimationValue = calculateResult.EstimationValue;
-            double investAmount = calculateResult.InvestAmount;
-            CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
-            CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
-            CombineLog.LogInfo($"Buy {fundId} {fundName} is notified. Start to write database");
-            HistoryModel historyModel = new HistoryModel
-            {
-                FundId = fundId,
-                BuyDate = DateTime.Now,
-                FundName = fundName,
-                ShangHaiIndex = generalPoint,
-                ShangHaiIndexJumpPercentage = generalPointModel.Percentate,
-                FundValue = estimationValue,
-                FundValueJumpPercentage = estimationJumpPercentage,
-                BuyAmount = investAmount
-            };
-            _dbService.InsertBuyResult(historyModel);
-            CombineLog.LogInfo($"Buy {fundId} {fundName} done");
-        }
-
         private void ExecuteBuyTask(string fundId)
         {
             CombineLog.LogInfo("Start to execute " + fundId);
@@ -124,7 +96,14 @@ namespace AutomaticInvestmentPlan_Host
                 string historyJumpPercentage = r.Split('@')[3];
                 string historyPointValue = r.Split('@')[4];
                 string name = r.Split('@')[5];
-                fundName = name;
+                if (name.Contains("(") && !name.Contains(")"))
+                {
+                    fundName = name + ")";
+                }
+                else
+                {
+                    fundName = name;
+                }
                 List<HistoryPointModel> list = NetworkValueConverter.
                     ConvertToHistoryPointModel(historyDate, historyJumpPercentage, historyPointValue);
 
@@ -158,7 +137,7 @@ namespace AutomaticInvestmentPlan_Host
                 FundName = fundName,
                 EstimationValue = estimationValue,
                 EstimationJumpPercentage = estimationJumpPercentage,
-                InvestAmount = investAmount
+                InvestAmount = Math.Round(investAmount)
             };
             return result;
         }

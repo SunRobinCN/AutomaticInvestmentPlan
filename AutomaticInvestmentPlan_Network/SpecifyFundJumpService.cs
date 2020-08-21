@@ -101,8 +101,9 @@ namespace AutomaticInvestmentPlan_Network
                     {
                         Thread.Sleep(1000*30);
                         List<Task> tasks = new List<Task>();
-                        //string jscript1 =
-                        //    "document.getElementById(\'gz_gszzl\').innerText + \'|\' + document.getElementById(\'gz_gsz\').innerText";
+                        string jscript0 = "$(\'span:contains(\"立即开启\")\').click();";
+                        Task t = browser.EvaluateScriptAsync(jscript0);
+                        Task.WaitAll(t);
                         string jscript1 =
                             "var dates = [];var historys = [];var points = [];$(\'#Li1 tr\').each(function(i){                        $(this).children(\'td\').each(function(j){          if(j == 0) {            dates.push($(this).text());        }        if(j == 2) {            points.push($(this).text());        }        if(j == 3) {            historys.push($(this).text());        }      });});var combinedDates=\'\';var combinedHistory =\'\';var combinedPoints =\'\';$.each(dates,function(index,value){     combinedDates = combinedDates + \'^\' +value;});$.each(historys,function(index,value){     combinedHistory = combinedHistory + \'^\' +value;});$.each(points,function(index,value){     combinedPoints = combinedPoints + \'^\' +value;});var result = $(\'#gz_gszze\').text() + \"@\" + $(\'#gz_gszzl\').text() + \"@\" + combinedDates + \"@\" + combinedHistory + \"@\" + combinedPoints + \"@\" + $(\'.fundDetail-tit > div\').text();result;";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);
