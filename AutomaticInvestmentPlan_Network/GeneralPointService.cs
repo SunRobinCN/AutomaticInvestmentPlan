@@ -97,6 +97,7 @@ namespace AutomaticInvestmentPlan_Network
                     CefSharp.FrameLoadEndEventArgs p = e as CefSharp.FrameLoadEndEventArgs;
                     if (p != null && p.Url == "https://www.txfund.com/")
                     {
+                        Thread.Sleep(1000 * 2);
                         List<Task> tasks = new List<Task>();
                         string jscript1 = "$(\'.js-s_sh000001\').find(\'.js-num\').html() + \':\' +$(\'.js-s_sh000001\').find(\'.js-rate\').html();";
                         Task<CefSharp.JavascriptResponse> task1 = browser.EvaluateScriptAsync(jscript1);

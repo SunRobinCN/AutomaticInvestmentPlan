@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,25 +46,19 @@ namespace AutomaticInvestmentPlan_Host
                             {
                                 string subject = "Investment Reminder";
                                 EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
+                                SmsUtil.Send("819146", null, new[] { "+8618526088356" });
                                 CacheUtil.RefrshCache();
 
                                 BackupDB();
 
-                                //华夏中证新能源汽车ETF(515030)
-                                //DoExecuteBuy("515030");
-                                //DoExecuteSell("515030");
-                                //SendOutEftNotificationEmail();
-
                                 //华宝中证100 240014
-                                //大成中证红利 007801
                                 //嘉实沪深300 160706
                                 DoExecuteBuy("240014");
                                 Thread.Sleep(1000 * 60 * 2);
                                 DoExecuteBuy("160706");
-                                Thread.Sleep(1000 * 60 * 2);
-                                DoExecuteSell("160706");
 
                                 SendOutFinalEmail();
+                                SendOutFinalSms();
                             }
                             else
                             {
@@ -183,6 +179,15 @@ namespace AutomaticInvestmentPlan_Host
             EmailUtil.Send(subject, body.ToString());
             CombineLog.LogInfo("final email is sent out");
         }
+
+        private void SendOutFinalSms()
+        {
+            List<SpecifyFundCache> list = CacheUtil.GetAllCaches();
+            var sum = list.Sum(s => Convert.ToDouble(s.BuyAmount)).ToString(CultureInfo.InvariantCulture);
+            SmsUtil.Send("819346", new []{ sum }, new []{ "+8618526088356" });
+            CombineLog.LogInfo("final sms is sent out");
+        }
+
 
         public bool Stop(HostControl hostControl)
         {

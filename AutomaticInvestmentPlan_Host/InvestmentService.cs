@@ -90,6 +90,7 @@ namespace AutomaticInvestmentPlan_Host
             Task t3 = Task.Factory.StartNew(() =>
             {
                 string r = RunTaskForGetFundEstimationJump(fundId);
+                CombineLog.LogInfo("Get combined history result from browser " + r);
                 string todayJumpPoint = r.Split('@')[0].Trim();
                 string todayJumpPercentage = r.Split('@')[1].Trim();
                 string historyDate = r.Split('@')[2];
@@ -104,6 +105,8 @@ namespace AutomaticInvestmentPlan_Host
                 {
                     fundName = name;
                 }
+                CombineLog.LogInfo($"todayJumpPoint {todayJumpPoint} todayJumpPercentage {todayJumpPercentage} historyDate {historyDate} historyJumpPercentage" +
+                    $" {historyJumpPercentage} historyPointValue {historyPointValue} fundName {fundName}");
                 List<HistoryPointModel> list = NetworkValueConverter.
                     ConvertToHistoryPointModel(historyDate, historyJumpPercentage, historyPointValue);
 
@@ -219,6 +222,7 @@ namespace AutomaticInvestmentPlan_Host
                 Thread.Sleep(2000);
                 CombineLog.LogInfo("Task RunTaskForGetGeneralPoint started");
                 var strResult = _generalPointService.ExecuteCrawl();
+                CombineLog.LogInfo("Get combined general point " + strResult);
                 result = NetworkValueConverter.ConvertToGeneralPointModel(strResult);
                 CombineLog.LogInfo("Task RunTaskForGetGeneralPoint ended");
                 generalPointCache.GeneralPoint = Convert.ToDouble(result.Point);

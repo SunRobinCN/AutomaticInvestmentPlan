@@ -31,7 +31,7 @@ namespace AutomaticInvestmentPlan_Network
             if (Cef.IsInitialized == false)
             {
                 var settings = new CefSettings();
-                CefSharp.Cef.Initialize(settings);
+                Cef.Initialize(settings);
             }
             _browser = new ChromiumWebBrowser("")
             {

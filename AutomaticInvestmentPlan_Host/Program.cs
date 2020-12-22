@@ -8,7 +8,7 @@ namespace AutomaticInvestmentPlan_Host
     {
         static void Main(string[] args)
         {
-            System.AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
             try
             {
                 // Here is TopShelf to help create windows service and debug it,
