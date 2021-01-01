@@ -18,6 +18,10 @@ namespace AutomaticInvestmentPlan_Host
 
         private bool CheckWhetherInCorespondingTime(TimeSpan start, TimeSpan end)
         {
+            if(System.Configuration.ConfigurationManager.AppSettings["SkipTimeSpanCheck"] == "true")
+            {
+                return true;
+            }
             TimeSpan now = DateTime.Now.TimeOfDay;
             if ((now > start) && (now < end))
             {
@@ -44,8 +48,8 @@ namespace AutomaticInvestmentPlan_Host
                             if (CheckWhetherInCorespondingTime(start, end) && DayUtil.WhetherWeekend() == false
                                 && DayUtil.WhetherHoliday() == false)
                             {
-                                string subject = "Investment Reminder";
-                                EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
+                                //string subject = "Investment Reminder";
+                                //EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
                                 SmsUtil.Send("819146", null, new[] { "+8618526088356" });
                                 CacheUtil.RefrshCache();
 
@@ -57,7 +61,7 @@ namespace AutomaticInvestmentPlan_Host
                                 Thread.Sleep(1000 * 60 * 2);
                                 DoExecuteBuy("160706");
 
-                                SendOutFinalEmail();
+                                //SendOutFinalEmail();
                                 SendOutFinalSms();
                             }
                             else
@@ -175,17 +179,18 @@ namespace AutomaticInvestmentPlan_Host
 
                 body.Append("\r\n");
             }
-
+            CombineLog.LogInfo("Start to send final email");
             EmailUtil.Send(subject, body.ToString());
-            CombineLog.LogInfo("final email is sent out");
+            CombineLog.LogInfo("Final email is sent out");
         }
 
         private void SendOutFinalSms()
         {
+            CombineLog.LogInfo("Start to send final sms");
             List<SpecifyFundCache> list = CacheUtil.GetAllCaches();
             var sum = list.Sum(s => Convert.ToDouble(s.BuyAmount)).ToString(CultureInfo.InvariantCulture);
             SmsUtil.Send("819346", new []{ sum }, new []{ "+8618526088356" });
-            CombineLog.LogInfo("final sms is sent out");
+            CombineLog.LogInfo("Final sms is sent out");
         }
 
 

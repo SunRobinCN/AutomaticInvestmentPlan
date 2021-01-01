@@ -108,12 +108,10 @@ namespace AutomaticInvestmentPlan_Comm
             {
                 req.TemplateParamSet = parameters;
             }
-
-
+            CombineLog.LogInfo("Start to invoke sms api");
             // 通过 client 对象调用 SendSms 方法发起请求，注意请求方法名与请求对象是对应的
             // 返回的 resp 是一个 SendSmsResponse 类的实例，与请求对象对应
-            SendSmsResponse resp = client.SendSms(req).Result;
-
+            SendSmsResponse resp = client.SendSmsSync(req);
             // 输出 JSON 格式的字符串回包
             CombineLog.LogInfo(AbstractModel.ToJsonString(resp));
         }

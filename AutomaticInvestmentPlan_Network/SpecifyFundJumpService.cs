@@ -132,7 +132,7 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            FileLog.Debug("SpecifyFundJumpService.OnConsoleMessage", LogType.Debug);
+            FileLog.Debug("SpecifyFundJumpService.OnConsoleMessage " + e.Message, LogType.Debug);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)

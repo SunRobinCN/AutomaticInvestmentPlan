@@ -12,6 +12,10 @@ namespace AutomaticInvestmentPlan_Comm
     {
         public static bool WhetherWeekend()
         {
+            if (System.Configuration.ConfigurationManager.AppSettings["SkipWorkingDayCheck"] == "true")
+            {
+                return false;
+            }
             DayOfWeek day = DateTime.Now.DayOfWeek;
             bool result = (day == DayOfWeek.Saturday) || (day == DayOfWeek.Sunday);
             return result;
@@ -19,7 +23,11 @@ namespace AutomaticInvestmentPlan_Comm
 
         public static bool WhetherHoliday()
         {
-            bool result = false;
+            if (System.Configuration.ConfigurationManager.AppSettings["SkipWorkingDayCheck"] == "true")
+            {
+                return false;
+            }
+            bool result;
             try
             {
                 string url = "http://timor.tech/api/holiday/info/";
