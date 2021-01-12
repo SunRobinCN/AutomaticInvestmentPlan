@@ -13,6 +13,7 @@ namespace AutomaticInvestmentPlan_Comm
         {
             try
             {
+                CombineLog.LogInfo("Try to send sms first time");
                 ExecuteSend(templateId, parameters, phoneNumbers);
             }
             catch (Exception ex)
@@ -21,6 +22,7 @@ namespace AutomaticInvestmentPlan_Comm
                 Thread.Sleep(1000 * 2);
                 try
                 {
+                    CombineLog.LogInfo("Try to send sms second time");
                     ExecuteSend(templateId, parameters, phoneNumbers);
                 }
                 catch (Exception e)

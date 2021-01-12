@@ -48,21 +48,27 @@ namespace AutomaticInvestmentPlan_Host
                             if (CheckWhetherInCorespondingTime(start, end) && DayUtil.WhetherWeekend() == false
                                 && DayUtil.WhetherHoliday() == false)
                             {
-                                //string subject = "Investment Reminder";
-                                //EmailUtil.Send(subject, "今日定投提醒\r\n\r\n 即将进行今日的定投扣款\r\n 请关注定投结果……");
-                                SmsUtil.Send("819146", null, new[] { "+8618526088356" });
-                                CacheUtil.RefrshCache();
+                                try
+                                {
+                                    SmsUtil.Send("819146", null, new[] { "+8618526088356" });
+                                    CacheUtil.RefrshCache();
 
-                                BackupDB();
+                                    BackupDB();
 
-                                //华宝中证100 240014
-                                //嘉实沪深300 160706
-                                DoExecuteBuy("240014");
-                                Thread.Sleep(1000 * 60 * 2);
-                                DoExecuteBuy("160706");
+                                    //华宝中证100 240014
+                                    //嘉实沪深300 160706
+                                    DoExecuteBuy("240014");
+                                    Thread.Sleep(1000 * 60 * 2);
+                                    DoExecuteBuy("160706");
 
-                                //SendOutFinalEmail();
-                                SendOutFinalSms();
+                                    SendOutFinalSms();
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    FileLog.Error("Start.Loop", e, LogType.Error);
+                                    SendOutErrorSms();
+                                }
                             }
                             else
                             {
@@ -191,6 +197,15 @@ namespace AutomaticInvestmentPlan_Host
             var sum = list.Sum(s => Convert.ToDouble(s.BuyAmount)).ToString(CultureInfo.InvariantCulture);
             SmsUtil.Send("819346", new []{ sum }, new []{ "+8618526088356" });
             CombineLog.LogInfo("Final sms is sent out");
+        }
+
+        private void SendOutErrorSms()
+        {
+            CombineLog.LogInfo("Start to send error sms");
+            List<SpecifyFundCache> list = CacheUtil.GetAllCaches();
+            var sum = "Error";
+            SmsUtil.Send("819346", new[] { sum }, new[] { "+8618526088356" });
+            CombineLog.LogInfo("Error sms is sent out");
         }
 
 
