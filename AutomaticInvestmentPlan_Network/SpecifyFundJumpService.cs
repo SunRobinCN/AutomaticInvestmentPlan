@@ -78,7 +78,7 @@ namespace AutomaticInvestmentPlan_Network
             while (_done == false)
             {
                 TimeSpan midTime = DateTime.Now - beginTime;
-                if (midTime.TotalMinutes > 3)
+                if (midTime.TotalMinutes > Constant.TimeOutMinutes)
                 {
                     _browser.Dispose();
                     _f.Dispose();

@@ -94,7 +94,7 @@ namespace AutomaticInvestmentPlan_Network
             while (_done == false)
             {
                 TimeSpan midTime = DateTime.Now - beginTime;
-                if (midTime.TotalMinutes > 3)
+                if (midTime.TotalMinutes > Constant.TimeOutMinutes)
                 {
                     _browser.Dispose();
                     _f.Dispose();
@@ -235,12 +235,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
-            FileLog.Error("SpecifyFundSellService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
+            FileLog.Warn("SpecifyFundBuyService.OnLoadError", new Exception(e.ErrorText), LogType.Warn);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            CombineLog.LogError("SpecifyFundSellService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source));
+            FileLog.Warn("SpecifyFundBuyService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Warn);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)

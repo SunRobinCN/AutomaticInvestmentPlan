@@ -20,30 +20,33 @@ namespace AutomaticInvestmentPlan_Host
 
         private readonly DbService _dbService = new DbService();
 
-        public InvestmentService()
+        private readonly String _fundId;
+
+        public InvestmentService(string fundId)
         {
-            CombineLog.LogInfo("SpecifyFundNameService class is constructed");
+            this._fundId = fundId;
+            CombineLog.LogInfo("SpecifyFundNameService class is constructed for " + _fundId);
             Name = "InvestmentService";
         }
 
-        public void ExecuteBuy(string fundId)
+        public void ExecuteBuy()
         {
             MethodTimeoutMonitor.TimeoutMonitor(this);
-            ExecuteBuyTask(fundId);
+            ExecuteBuyTask();
             JobDone = true;
         }
 
-        public void ExecuteSell(string fundId)
+        public void ExecuteSell()
         {
             MethodTimeoutMonitor.TimeoutMonitor(this);
-            ExecuteSellTask(fundId);
+            ExecuteSellTask();
             JobDone = true;
         }
 
-        private void ExecuteBuyTask(string fundId)
+        private void ExecuteBuyTask()
         {
-            CombineLog.LogInfo("Start to execute " + fundId);
-            CombinedResult calculateResult = ExecuteCalculateTask(fundId);
+            CombineLog.LogInfo("Start to execute " + _fundId);
+            CombinedResult calculateResult = ExecuteCalculateTask(_fundId);
             string fundName = calculateResult.FundName;
             GeneralPointModel generalPointModel = calculateResult.GeneralPoint;
             double generalPoint = Convert.ToDouble(generalPointModel.Point);
@@ -51,15 +54,15 @@ namespace AutomaticInvestmentPlan_Host
             double estimationValue = calculateResult.EstimationValue;
             double investAmount = calculateResult.InvestAmount;
             CacheUtil.BuyAmount = Math.Round(investAmount).ToString(CultureInfo.CurrentCulture);
-            CacheUtil.GetFundDetailInCache(fundId).BuyAmount = CacheUtil.BuyAmount;
-            var buyResult = RunTaskForBuyFund(fundId, investAmount);
+            CacheUtil.GetFundDetailInCache(_fundId).BuyAmount = CacheUtil.BuyAmount;
+            var buyResult = RunTaskForBuyFund(_fundId, investAmount);
             if (string.IsNullOrEmpty(buyResult) == false)
             {
-                CacheUtil.GetFundDetailInCache(fundId).BuyResult = buyResult;
-                CombineLog.LogInfo($"Buy {fundId} {fundName} is OK. Start to write database");
+                CacheUtil.GetFundDetailInCache(_fundId).BuyResult = buyResult;
+                CombineLog.LogInfo($"Buy {_fundId} {fundName} is OK. Start to write database");
                 HistoryModel historyModel = new HistoryModel
                 {
-                    FundId = fundId,
+                    FundId = _fundId,
                     BuyDate = DateTime.Now,
                     FundName = fundName,
                     ShangHaiIndex = generalPoint,
@@ -70,7 +73,7 @@ namespace AutomaticInvestmentPlan_Host
                 };
                 _dbService.InsertBuyResult(historyModel);
             }
-            CombineLog.LogInfo($"Buy {fundId} {fundName} done");
+            CombineLog.LogInfo($"Buy {_fundId} {fundName} done");
         }
 
         private CombinedResult ExecuteCalculateTask(string fundId)
@@ -145,12 +148,12 @@ namespace AutomaticInvestmentPlan_Host
             return result;
         }
 
-        private void ExecuteSellTask(string fundId)
+        private void ExecuteSellTask()
         {
-            string fundName = CacheUtil.GetFundNameInCache(fundId);
-            double fundValue = CacheUtil.GetFundDetailInCache(fundId).EstimationFundValue;
-            List<double> accumulatedPointHistory = CacheUtil.GetFundDetailInCache(fundId).AcculatedPointHistory;
-            List<HistoryModel> list = _dbService.SelectAllNotSold(fundId);
+            string fundName = CacheUtil.GetFundNameInCache(_fundId);
+            double fundValue = CacheUtil.GetFundDetailInCache(_fundId).EstimationFundValue;
+            List<double> accumulatedPointHistory = CacheUtil.GetFundDetailInCache(_fundId).AcculatedPointHistory;
+            List<HistoryModel> list = _dbService.SelectAllNotSold(_fundId);
             List<HistoryModel> sellList = new List<HistoryModel>();
             foreach (HistoryModel historyModel in list)
             {
@@ -167,20 +170,20 @@ namespace AutomaticInvestmentPlan_Host
                 return;
             }
             int sellShareAmount = Convert.ToInt32(sellList.Sum(t => t.FundShare));
-            CacheUtil.GetFundDetailInCache(fundId).SellShareAmount = sellShareAmount.ToString();
-            CombineLog.LogInfo($"fund {fundId} total share amount is {sellShareAmount}");
-            if (CacheUtil.EftList.Contains(fundId))
+            CacheUtil.GetFundDetailInCache(_fundId).SellShareAmount = sellShareAmount.ToString();
+            CombineLog.LogInfo($"fund {_fundId} total share amount is {sellShareAmount}");
+            if (CacheUtil.EftList.Contains(_fundId))
             {
-                WriteResultInDb(fundId, "", sellShareAmount, sellList, fundValue);
+                WriteResultInDb(_fundId, "", sellShareAmount, sellList, fundValue);
                 return;
             }
 
-            var sellResult = RunTaskForSellFund(fundId, sellShareAmount);
+            var sellResult = RunTaskForSellFund(_fundId, sellShareAmount);
             if (string.IsNullOrEmpty(sellResult) == false)
             {
-                WriteResultInDb(fundId, sellResult, sellShareAmount, sellList, fundValue);
+                WriteResultInDb(_fundId, sellResult, sellShareAmount, sellList, fundValue);
             }
-            CombineLog.LogInfo($"Sell {fundId} {fundName} down");
+            CombineLog.LogInfo($"Sell {_fundId} {fundName} down");
 
         }
 
@@ -250,6 +253,7 @@ namespace AutomaticInvestmentPlan_Host
             {
                 Console.WriteLine(e);
                 FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
+                throw;
             }
             return result;
         }
@@ -276,6 +280,7 @@ namespace AutomaticInvestmentPlan_Host
             {
                 Console.WriteLine(e);
                 FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
+                throw;
             }
             return result;
         }
@@ -301,16 +306,19 @@ namespace AutomaticInvestmentPlan_Host
             {
                 Console.WriteLine(e);
                 FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
+                throw;
             }
             return result;
         }
 
         public override void Dispose()
         {
+            CombineLog.LogInfo("Start to dispose components for fund " + this._fundId);
             _generalPointService.Dispose();
             _specifyFundJumpService.Dispose();
             _specifyFundBuyService.Dispose();
             _specifyFundSellService.Dispose();
+            CombineLog.LogInfo("Components are disposed for fund " + this._fundId);
         }
     }
 }

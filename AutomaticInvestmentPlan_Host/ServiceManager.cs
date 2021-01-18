@@ -40,8 +40,8 @@ namespace AutomaticInvestmentPlan_Host
                 {
                     try
                     {
-                        TimeSpan start = new TimeSpan(14, 45, 0);
-                        TimeSpan end = new TimeSpan(14, 46, 0);
+                        TimeSpan start = new TimeSpan(14, 41, 0);
+                        TimeSpan end = new TimeSpan(14, 42, 0);
 
                         while (_signal)
                         {
@@ -109,11 +109,11 @@ namespace AutomaticInvestmentPlan_Host
                     break;
                 }
 
-                InvestmentService investmentService = new InvestmentService();
+                InvestmentService investmentService = new InvestmentService(fundId);
                 try
                 {
                     CombineLog.LogInfo("Start to execute buy " + fundId + " count " + count);
-                    investmentService.ExecuteBuy(fundId);
+                    investmentService.ExecuteBuy();
                 }
                 catch (Exception e)
                 {
@@ -130,11 +130,11 @@ namespace AutomaticInvestmentPlan_Host
         private void DoExecuteSell(string fundId)
         {
 
-            InvestmentService investmentService = new InvestmentService();
+            InvestmentService investmentService = new InvestmentService(fundId);
             try
             {
                 CombineLog.LogInfo("Start to execute sell " + fundId);
-                investmentService.ExecuteSell(fundId);
+                investmentService.ExecuteSell();
             }
             catch (Exception e)
             {

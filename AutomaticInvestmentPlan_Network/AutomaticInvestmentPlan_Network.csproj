@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constant.cs" />
     <Compile Include="WebHandler\JSHandler.cs" />
     <Compile Include="SpecifyFundSellService.cs" />
     <Compile Include="SpecifyFundBuyService.cs" />
