@@ -21,7 +21,7 @@ namespace AutomaticInvestmentPlan_Comm
         {
             bool falling = CalculateWhetherFalling(accumulatedPointHistory, todayFundValue);
 
-            int baseGeneralPoint = 3500;
+            int baseGeneralPoint = 3800;
             int baseAmount = 30;
             if (falling)
             {

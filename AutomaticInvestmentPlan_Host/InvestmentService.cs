@@ -220,67 +220,41 @@ namespace AutomaticInvestmentPlan_Host
             }
 
             GeneralPointModel result = new GeneralPointModel();
-            try
-            {
-                Thread.Sleep(2000);
-                CombineLog.LogInfo("Task RunTaskForGetGeneralPoint started");
-                var strResult = _generalPointService.ExecuteCrawl();
-                CombineLog.LogInfo("Get combined general point " + strResult);
-                result = NetworkValueConverter.ConvertToGeneralPointModel(strResult);
-                CombineLog.LogInfo("Task RunTaskForGetGeneralPoint ended");
-                generalPointCache.GeneralPoint = Convert.ToDouble(result.Point);
-                generalPointCache.GeneralPointJump = result.Percentate;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                FileLog.Error("RunTaskForGetGeneralPoint", e, LogType.Error);
-            }
+            Thread.Sleep(2000);
+            CombineLog.LogInfo("Task RunTaskForGetGeneralPoint started");
+            var strResult = _generalPointService.ExecuteCrawl();
+            CombineLog.LogInfo("Get combined general point " + strResult);
+            result = NetworkValueConverter.ConvertToGeneralPointModel(strResult);
+            CombineLog.LogInfo("Task RunTaskForGetGeneralPoint ended");
+            generalPointCache.GeneralPoint = Convert.ToDouble(result.Point);
+            generalPointCache.GeneralPointJump = result.Percentate;
             return result;
         }
 
         private string RunTaskForGetFundEstimationJump(string fundId)
         {
             string result = "";
-            try
-            {
-                Thread.Sleep(2000);
-                CombineLog.LogInfo("Task RunTaskForGetFundEstimationJump " + fundId + " started");
-                result = _specifyFundJumpService.ExecuteCrawl(fundId);
-                CombineLog.LogInfo("Task RunTaskForGetFundEstimationJump " + fundId + " ended");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
-                throw;
-            }
+            Thread.Sleep(2000);
+            CombineLog.LogInfo("Task RunTaskForGetFundEstimationJump " + fundId + " started");
+            result = _specifyFundJumpService.ExecuteCrawl(fundId);
+            CombineLog.LogInfo("Task RunTaskForGetFundEstimationJump " + fundId + " ended");
             return result;
         }
 
         private string RunTaskForBuyFund(string fundId, double investAmount)
         {
             string result = "";
-            try
+            Thread.Sleep(2000);
+            if (investAmount > 0)
             {
-                Thread.Sleep(2000);
-                if (investAmount > 0)
-                {
-                    CombineLog.LogInfo("Task RunTaskForBuyFund " + fundId + " " + investAmount + " started");
-                    result = _specifyFundBuyService.ExecuteBuy(fundId, investAmount.ToString(CultureInfo.InvariantCulture));
-                    CombineLog.LogInfo("Task RunTaskForBuyFund " + fundId + " " + investAmount + " ended");
-                }
-                else
-                {
-                    result = "NotBuy";
-                    CombineLog.LogInfo("Not buy today for " + fundId);
-                }
+                CombineLog.LogInfo("Task RunTaskForBuyFund " + fundId + " " + investAmount + " started");
+                result = _specifyFundBuyService.ExecuteBuy(fundId, investAmount.ToString(CultureInfo.InvariantCulture));
+                CombineLog.LogInfo("Task RunTaskForBuyFund " + fundId + " " + investAmount + " ended");
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
-                FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
-                throw;
+                result = "NotBuy";
+                CombineLog.LogInfo("Not buy today for " + fundId);
             }
             return result;
         }
@@ -288,25 +262,16 @@ namespace AutomaticInvestmentPlan_Host
         private string RunTaskForSellFund(string fundId, double sellAmount)
         {
             string result = "";
-            try
+            Thread.Sleep(2000);
+            if (sellAmount > 0)
             {
-                Thread.Sleep(2000);
-                if (sellAmount > 0)
-                {
-                    CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " started");
-                    result = _specifyFundSellService.ExecuteSell(fundId, sellAmount.ToString(CultureInfo.InvariantCulture));
-                    CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " ended");
-                }
-                else
-                {
-                    CombineLog.LogInfo("Not sell today for " + fundId);
-                }
+                CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " started");
+                result = _specifyFundSellService.ExecuteSell(fundId, sellAmount.ToString(CultureInfo.InvariantCulture));
+                CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " ended");
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
-                FileLog.Error("RunTaskForGetFundEstimationJump", e, LogType.Error);
-                throw;
+                CombineLog.LogInfo("Not sell today for " + fundId);
             }
             return result;
         }

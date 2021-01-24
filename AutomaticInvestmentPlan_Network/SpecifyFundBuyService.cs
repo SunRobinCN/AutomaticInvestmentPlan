@@ -207,12 +207,12 @@ namespace AutomaticInvestmentPlan_Network
 
         void OnLoadError(object sender, LoadErrorEventArgs e)
         {
-            FileLog.Error("SpecifyFundBuyService.OnLoadError", new Exception(e.ErrorText), LogType.Error);
+            FileLog.Warn("SpecifyFundBuyService.OnLoadError", new Exception(e.ErrorText), LogType.Warn);
         }
 
         void OnConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
-            FileLog.Error("SpecifyFundBuyService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Error);
+            FileLog.Warn("SpecifyFundBuyService.OnConsoleMessage", new Exception(e.Message + "\r\n" + e.Source), LogType.Warn);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, EventArgs args)
