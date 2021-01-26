@@ -20,7 +20,7 @@ namespace AutomaticInvestmentPlan_Host
 
         private readonly DbService _dbService = new DbService();
 
-        private readonly String _fundId;
+        private readonly string _fundId;
 
         public InvestmentService(string fundId)
         {
@@ -31,14 +31,14 @@ namespace AutomaticInvestmentPlan_Host
 
         public void ExecuteBuy()
         {
-            MethodTimeoutMonitor.TimeoutMonitor(this);
+            //MethodTimeoutMonitor.TimeoutMonitor(this);
             ExecuteBuyTask();
             JobDone = true;
         }
 
         public void ExecuteSell()
         {
-            MethodTimeoutMonitor.TimeoutMonitor(this);
+            //MethodTimeoutMonitor.TimeoutMonitor(this);
             ExecuteSellTask();
             JobDone = true;
         }

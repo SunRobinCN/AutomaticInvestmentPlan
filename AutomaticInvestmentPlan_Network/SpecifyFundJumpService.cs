@@ -82,6 +82,7 @@ namespace AutomaticInvestmentPlan_Network
                 {
                     _browser.Dispose();
                     _f.Dispose();
+                    CombineLog.LogInfo("Dispose SpecifyFundJumpService for time out");
                     throw new Exception("SpecifyFundJumpService crawl time out");
                 }
                 Thread.Sleep(1000 * 2);

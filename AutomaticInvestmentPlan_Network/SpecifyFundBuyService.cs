@@ -225,8 +225,14 @@ namespace AutomaticInvestmentPlan_Network
 
         public override void Dispose()
         {
-            _browser?.Dispose();
-            _f?.Dispose();
+            if (_browser != null && _browser.IsDisposed == false)
+            {
+                _browser?.Dispose();
+            }
+            if (_f != null && _f.IsDisposed == false)
+            {
+                _f?.Dispose();
+            }
             _browser = null;
             _f = null;
         }
