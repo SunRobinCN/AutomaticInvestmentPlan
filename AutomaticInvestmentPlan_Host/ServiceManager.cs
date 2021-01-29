@@ -56,12 +56,18 @@ namespace AutomaticInvestmentPlan_Host
                                     BackupDB();
 
                                     //华宝中证100 240014
+                                    CombineLog.LogInfo("\r\n");
+                                    CombineLog.LogInfo("华宝中证100 240014 Start!!!");
                                     DoExecuteBuy("240014");
                                     Thread.Sleep(1000 * 60 * 1);
                                     //嘉实沪深300 160706
+                                    CombineLog.LogInfo("\r\n");
+                                    CombineLog.LogInfo("嘉实沪深300 160706 Start!!!");
                                     DoExecuteBuy("160706");
                                     Thread.Sleep(1000 * 60 * 1);
                                     //富国中证500 161017
+                                    CombineLog.LogInfo("\r\n");
+                                    CombineLog.LogInfo("富国中证500 161017 Start!!!");
                                     DoExecuteBuy("161017");
 
                                     SendOutFinalSms();

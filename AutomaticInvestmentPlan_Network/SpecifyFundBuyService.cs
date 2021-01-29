@@ -225,6 +225,7 @@ namespace AutomaticInvestmentPlan_Network
 
         public override void Dispose()
         {
+            CombineLog.LogInfo("Dispose SpecifyFundBuyService form");
             if (_browser != null && _browser.IsDisposed == false)
             {
                 _browser?.Dispose();

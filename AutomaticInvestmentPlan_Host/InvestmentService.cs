@@ -58,8 +58,9 @@ namespace AutomaticInvestmentPlan_Host
             var buyResult = RunTaskForBuyFund(_fundId, investAmount);
             if (string.IsNullOrEmpty(buyResult) == false)
             {
+                CombineLog.LogInfo($"Buy {_fundId} {fundName} success with " + buyResult);
                 CacheUtil.GetFundDetailInCache(_fundId).BuyResult = buyResult;
-                CombineLog.LogInfo($"Buy {_fundId} {fundName} is OK. Start to write database");
+                CombineLog.LogInfo($"Start to write database");
                 HistoryModel historyModel = new HistoryModel
                 {
                     FundId = _fundId,
@@ -72,6 +73,10 @@ namespace AutomaticInvestmentPlan_Host
                     BuyAmount = investAmount
                 };
                 _dbService.InsertBuyResult(historyModel);
+            }
+            else
+            {
+                CombineLog.LogInfo($"Buy {_fundId} {fundName} failed");
             }
             CombineLog.LogInfo($"Buy {_fundId} {fundName} done");
         }

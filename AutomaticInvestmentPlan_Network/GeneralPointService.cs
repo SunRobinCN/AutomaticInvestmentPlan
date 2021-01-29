@@ -139,6 +139,7 @@ namespace AutomaticInvestmentPlan_Network
 
         public override void Dispose()
         {
+            CombineLog.LogInfo("Dispose GeneralPointService form");
             if (_browser != null && _browser.IsDisposed == false)
             {
                 _browser?.Dispose();
