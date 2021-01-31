@@ -68,6 +68,7 @@
     <Compile Include="CacheUtil.cs" />
     <Compile Include="CalculateUtil.cs" />
     <Compile Include="CombineLog.cs" />
+    <Compile Include="CustomDisposeUtil.cs" />
     <Compile Include="CustomTimeoutException.cs" />
     <Compile Include="DayUtil.cs" />
     <Compile Include="EmailUtil.cs" />

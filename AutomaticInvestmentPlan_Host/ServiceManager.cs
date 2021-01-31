@@ -136,24 +136,24 @@ namespace AutomaticInvestmentPlan_Host
 
         }
 
-        private void DoExecuteSell(string fundId)
-        {
+        //private void DoExecuteSell(string fundId)
+        //{
 
-            InvestmentService investmentService = new InvestmentService(fundId);
-            try
-            {
-                CombineLog.LogInfo("Start to execute sell " + fundId);
-                investmentService.ExecuteSell();
-            }
-            catch (Exception e)
-            {
-                CombineLog.LogError("DoExecuteSell", e);
-            }
-            finally
-            {
-                investmentService.Dispose();
-            }
-        }
+        //    InvestmentService investmentService = new InvestmentService(fundId);
+        //    try
+        //    {
+        //        CombineLog.LogInfo("Start to execute sell " + fundId);
+        //        investmentService.ExecuteSell();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        CombineLog.LogError("DoExecuteSell", e);
+        //    }
+        //    finally
+        //    {
+        //        investmentService.Dispose();
+        //    }
+        //}
 
         private void BackupDB()
         {

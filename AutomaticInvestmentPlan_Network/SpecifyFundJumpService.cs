@@ -149,11 +149,11 @@ namespace AutomaticInvestmentPlan_Network
             CombineLog.LogInfo("Dispose SpecifyFundJumpService form");
             if (_browser != null && _browser.IsDisposed == false)
             {
-                _browser?.Dispose();
+                CustomDisposeUtil.Dispose(_browser);
             }
             if (_f != null && _f.IsDisposed == false)
             {
-                _f?.Dispose();
+                CustomDisposeUtil.Dispose(_f);
             }
             _browser = null;
             _f = null;

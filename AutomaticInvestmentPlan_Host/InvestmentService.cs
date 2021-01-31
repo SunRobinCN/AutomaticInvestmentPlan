@@ -16,7 +16,7 @@ namespace AutomaticInvestmentPlan_Host
         private readonly GeneralPointService _generalPointService = new GeneralPointService();
         private readonly SpecifyFundJumpService _specifyFundJumpService = new SpecifyFundJumpService();
         private readonly SpecifyFundBuyService _specifyFundBuyService = new SpecifyFundBuyService();
-        private readonly SpecifyFundSellService _specifyFundSellService = new SpecifyFundSellService();
+        //private readonly SpecifyFundSellService _specifyFundSellService = new SpecifyFundSellService();
 
         private readonly DbService _dbService = new DbService();
 
@@ -36,12 +36,12 @@ namespace AutomaticInvestmentPlan_Host
             JobDone = true;
         }
 
-        public void ExecuteSell()
-        {
-            //MethodTimeoutMonitor.TimeoutMonitor(this);
-            ExecuteSellTask();
-            JobDone = true;
-        }
+        //public void ExecuteSell()
+        //{
+        //    //MethodTimeoutMonitor.TimeoutMonitor(this);
+        //    //ExecuteSellTask();
+        //    JobDone = true;
+        //}
 
         private void ExecuteBuyTask()
         {
@@ -153,44 +153,44 @@ namespace AutomaticInvestmentPlan_Host
             return result;
         }
 
-        private void ExecuteSellTask()
-        {
-            string fundName = CacheUtil.GetFundNameInCache(_fundId);
-            double fundValue = CacheUtil.GetFundDetailInCache(_fundId).EstimationFundValue;
-            List<double> accumulatedPointHistory = CacheUtil.GetFundDetailInCache(_fundId).AcculatedPointHistory;
-            List<HistoryModel> list = _dbService.SelectAllNotSold(_fundId);
-            List<HistoryModel> sellList = new List<HistoryModel>();
-            foreach (HistoryModel historyModel in list)
-            {
-                if (CalculateUtil.CalculateWhetherSell(historyModel, accumulatedPointHistory, fundValue))
-                {
-                    historyModel.FundShare = historyModel.BuyAmount / historyModel.FundValue;
-                    CombineLog.LogInfo($"The record with id {historyModel.FundId} will be sold");
-                    sellList.Add(historyModel);
-                }
-            }
+        //private void ExecuteSellTask()
+        //{
+        //    string fundName = CacheUtil.GetFundNameInCache(_fundId);
+        //    double fundValue = CacheUtil.GetFundDetailInCache(_fundId).EstimationFundValue;
+        //    List<double> accumulatedPointHistory = CacheUtil.GetFundDetailInCache(_fundId).AcculatedPointHistory;
+        //    List<HistoryModel> list = _dbService.SelectAllNotSold(_fundId);
+        //    List<HistoryModel> sellList = new List<HistoryModel>();
+        //    foreach (HistoryModel historyModel in list)
+        //    {
+        //        if (CalculateUtil.CalculateWhetherSell(historyModel, accumulatedPointHistory, fundValue))
+        //        {
+        //            historyModel.FundShare = historyModel.BuyAmount / historyModel.FundValue;
+        //            CombineLog.LogInfo($"The record with id {historyModel.FundId} will be sold");
+        //            sellList.Add(historyModel);
+        //        }
+        //    }
 
-            if (sellList.Count == 0)
-            {
-                return;
-            }
-            int sellShareAmount = Convert.ToInt32(sellList.Sum(t => t.FundShare));
-            CacheUtil.GetFundDetailInCache(_fundId).SellShareAmount = sellShareAmount.ToString();
-            CombineLog.LogInfo($"fund {_fundId} total share amount is {sellShareAmount}");
-            if (CacheUtil.EftList.Contains(_fundId))
-            {
-                WriteResultInDb(_fundId, "", sellShareAmount, sellList, fundValue);
-                return;
-            }
+        //    if (sellList.Count == 0)
+        //    {
+        //        return;
+        //    }
+        //    int sellShareAmount = Convert.ToInt32(sellList.Sum(t => t.FundShare));
+        //    CacheUtil.GetFundDetailInCache(_fundId).SellShareAmount = sellShareAmount.ToString();
+        //    CombineLog.LogInfo($"fund {_fundId} total share amount is {sellShareAmount}");
+        //    if (CacheUtil.EftList.Contains(_fundId))
+        //    {
+        //        WriteResultInDb(_fundId, "", sellShareAmount, sellList, fundValue);
+        //        return;
+        //    }
 
-            var sellResult = RunTaskForSellFund(_fundId, sellShareAmount);
-            if (string.IsNullOrEmpty(sellResult) == false)
-            {
-                WriteResultInDb(_fundId, sellResult, sellShareAmount, sellList, fundValue);
-            }
-            CombineLog.LogInfo($"Sell {_fundId} {fundName} down");
+        //    var sellResult = RunTaskForSellFund(_fundId, sellShareAmount);
+        //    if (string.IsNullOrEmpty(sellResult) == false)
+        //    {
+        //        WriteResultInDb(_fundId, sellResult, sellShareAmount, sellList, fundValue);
+        //    }
+        //    CombineLog.LogInfo($"Sell {_fundId} {fundName} down");
 
-        }
+        //}
 
         private void WriteResultInDb(string fundId, string sellResult, int sellShareAmount, List<HistoryModel> sellList, double fundValue)
         {
@@ -264,22 +264,22 @@ namespace AutomaticInvestmentPlan_Host
             return result;
         }
 
-        private string RunTaskForSellFund(string fundId, double sellAmount)
-        {
-            string result = "";
-            Thread.Sleep(2000);
-            if (sellAmount > 0)
-            {
-                CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " started");
-                result = _specifyFundSellService.ExecuteSell(fundId, sellAmount.ToString(CultureInfo.InvariantCulture));
-                CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " ended");
-            }
-            else
-            {
-                CombineLog.LogInfo("Not sell today for " + fundId);
-            }
-            return result;
-        }
+        //private string RunTaskForSellFund(string fundId, double sellAmount)
+        //{
+        //    string result = "";
+        //    Thread.Sleep(2000);
+        //    if (sellAmount > 0)
+        //    {
+        //        CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " started");
+        //        result = _specifyFundSellService.ExecuteSell(fundId, sellAmount.ToString(CultureInfo.InvariantCulture));
+        //        CombineLog.LogInfo("Task RunTaskForSellFund " + fundId + " " + sellAmount + " ended");
+        //    }
+        //    else
+        //    {
+        //        CombineLog.LogInfo("Not sell today for " + fundId);
+        //    }
+        //    return result;
+        //}
 
         public override void Dispose()
         {
@@ -287,7 +287,7 @@ namespace AutomaticInvestmentPlan_Host
             _generalPointService.Dispose();
             _specifyFundJumpService.Dispose();
             _specifyFundBuyService.Dispose();
-            _specifyFundSellService.Dispose();
+            //_specifyFundSellService.Dispose();
             CombineLog.LogInfo("Components are disposed for fund " + this._fundId);
         }
     }
